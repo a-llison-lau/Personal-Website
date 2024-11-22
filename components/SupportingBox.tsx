@@ -28,9 +28,6 @@ const SupportingBox = (): JSX.Element => {
                 <Box href="/cv.pdf" label="CV">
                     <IconImage path='/images/cv-file-interface-symbol-svgrepo-com.svg' name="CV"/>
                 </Box>
-                <Box href={personalInfo.socialMedia.Twitter} label="Twitter">
-                    <IconImage path='/images/icons8-twitter.svg' name="Twitter"/>
-                </Box>
                 <Box href={personalInfo.socialMedia.LinkedIn} label="LinkedIn">
                     <IconImage path='/images/icons8-linkedin.svg' name="LinkedIn"/>
                 </Box>
