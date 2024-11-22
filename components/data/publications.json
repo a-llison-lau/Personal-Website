@@ -1,105 +1,39 @@
 [
 	{
-		"id": 5,
-		"author": "P.Harry, A.Dumbledor",
-		"title": "Towards Generalized Defensing Against the Dark Arts Spells",
-		"conference": "In Proc of ACM Conference of Magic, Hogwarts Owlery, England.",
-		"links": [
-			{
-				"name": "pdf",
-				"url": ""
-			},
-			{
-				"name": "slides",
-				"url": ""
-			},
-			{
-				"name": "video",
-				"url": ""
-			}
-		]
-	},
-
-	{
-		"id": 4,
-		"author": "P.Harry, A.Dumbledor",
-		"title": "Rethinking Defensing Against the Dark Arts Spells",
-		"conference": "In Proc of ACM Conference of Magic, Hogwarts Owlery, England.",
-		"links": [
-			{
-				"name": "pdf",
-				"url": ""
-			},
-			{
-				"name": "slides",
-				"url": ""
-			},
-			{
-				"name": "video",
-				"url": ""
-			}
-		]
-	},
-
-	{
 		"id": 3,
-		"author": "P.Harry, A.Dumbledor",
-		"title": "Pushing the Limits of Defensing Against the Dark Arts Spells",
-		"conference": "In Proc of ACM Conference of Magic, Hogwarts Owlery, England.",
+		"author": "Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, Allison Lau, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li",
+		"title": "Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, Allison Lau, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li",
+		"conference": "SPIE Astronomical Telescopes + Instrumentation 2024",
 		"links": [
 			{
 				"name": "pdf",
-				"url": ""
-			},
-			{
-				"name": "slides",
-				"url": ""
-			},
-			{
-				"name": "video",
-				"url": ""
+				"url": "../public/2409.16449v1.pdf"
 			}
 		]
 	},
 
 	{
 		"id": 2,
-		"author": "P.Harry, A.Dumbledor",
-		"title": "Defensing Against the Dark Arts Spells based on Reductor Curse",
-		"conference": "In Proc of ACM Conference of Magic, Hogwarts Owlery, England.",
+		"author": "Wenzhangzhi Guo, Allison Lau, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs",
+		"title": "Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method",
+		"conference": "EG VCBM 2024",
 		"links": [
 			{
 				"name": "pdf",
-				"url": ""
-			},
-			{
-				"name": "slides",
-				"url": ""
-			},
-			{
-				"name": "video",
-				"url": ""
+				"url": "../public/1-s2.0-S0097849324001924-main.pdf"
 			}
 		]
 	},
 
 	{
 		"id": 1,
-		"author": "P.Harry, A.Dumbledor",
-		"title": "A Survey of Defensing Against the Dark Arts Spells",
-		"conference": "In Proc of ACM Conference of Magic, Hogwarts Owlery, England.",
+		"author": "Allison Lau, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan",
+		"title": "Personalized Adaptation via In-Context Preference Learning",
+		"conference": "NeurIPS 2024 Workshop on Adaptive Foundation Models",
 		"links": [
 			{
 				"name": "pdf",
-				"url": ""
-			},
-			{
-				"name": "slides",
-				"url": ""
-			},
-			{
-				"name": "video",
-				"url": ""
+				"url": "../public/2410.14001v1.pdf"
 			}
 		]
 	}

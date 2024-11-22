@@ -1,39 +1,27 @@
 {
-    "title": "Harry Potter",
-    "name": "Harry James Potter",
-    "domain":"https://nextjs-academic-theme.vercel.app/",
+    "title": "Allison Lau",
+    "name": "Allison (Tsz Kwan) Lau",
+    "domain":"https://allison-lau.vercel.app/",
     "copyright":"harrypotter.me",
     "socialMedia": {
-        "Twitter": "https://twitter.com/",
-        "LinkedIn": "https://www.linkedin.com/",
-        "GoogleScholar": "https://scholar.google.com/"
+        "LinkedIn": "https://www.linkedin.com/in/allison-lau-1bab741aa/",
+        "GoogleScholar": "https://scholar.google.ca/citations?user=RBoRqu4AAAAJ&hl=en&authuser=1",
+        "Mail": "allison.lau@mail.utoronto.ca"
     },
     "about": {
-        "year": "7th-year",
-        "department": {
-            "name": "Gryffindor",
-            "link": "https://harrypotter.fandom.com/wiki/Gryffindor"
-        },
+        "year": "4th-year",
         "college": {
-            "name": "Hogwarts School of Witchcraft and Wizardry",
-            "link": "https://harrypotter.fandom.com/wiki/Hogwarts_School_of_Witchcraft_and_Wizardry"
+            "name": "University of Toronto",
+            "link": "https://web.cs.toronto.edu/"
         },
-        "advisor": {
-            "name": "Albus Dumbledor",
-            "link": "https://harrypotter.fandom.com/wiki/Albus_Dumbledore"
-        },
-        "email": "harrypotter AT MyUniversity",
-        "interest": "Defense against Dark Arts Spell; Dark Creatures"
+        "email": "allison.lau@mail.utoronto.ca",
+        "interest": "My research interest is in developing and improving fine-tuning and alignment methods for Large Language Models (LLMs), and Reinforcement Learning from Human Feedback (RLHF). I am also interested in intrepretability of LLMs, and would love to explore computational social science as well. Prior to my work in LLMs, I worked on several projects in optical/computational imaging and graphics."
     },
-    "love": "https://harrypotter.fandom.com/wiki/James_and_Lily_Potter",
+    "love": "https://henry-yip.github.io/",
     "education": [
         {
-            "name": "The Auror Department(2007-2008, Visiting Scholar)",
-            "link": "https://harrypotter.fandom.com/wiki/British_Auror_Office"
-        },
-        {
-            "name": "Hogwarts Primary University(1911-1988, Bachelor's in Magic)",
-            "link": "https://harrypotter.fandom.com/wiki/Hogwarts_School_of_Witchcraft_and_Wizardry"
+            "name": "University of Toronto (2021-2025, Undergrad)",
+            "link": "https://web.cs.toronto.edu/"
         }
     ]
 
