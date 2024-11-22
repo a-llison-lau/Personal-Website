@@ -22,6 +22,7 @@ const About = (): JSX.Element => {
 						<b>Research Interest</b>: {personalInfo.about.interest}
 					</p>
 					<p className = "text-sm text-gray-400">
+						.. Last updated: Nov 21, 2024
 					</p>
 				</div>
 			</div>
