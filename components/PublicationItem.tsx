@@ -13,9 +13,9 @@ const PublicationItem = ({publication, index}: Props): JSX.Element => {
                 <br/>
                 {publication.author}
                 <br/>
-                <a className = "text-sm">{publication.conference}</a>
+                <b>{publication.conference}</b>
                 <br/>
-                <b>{publication.abstract}</b>
+                {publication.abstract}
             </p>
             <p className = "text-gray-500 flex justify-end text-sm bold">
                 {publication.links.map((linkItem: any, idx: any) => (
