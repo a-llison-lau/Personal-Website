@@ -1,39 +1,39 @@
 [
 	{
-		"id": 3,
+		"id": 0,
 		"author": "Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, Allison Lau, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li",
-		"title": "Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, Allison Lau, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li",
+		"title": "Beyond CCDs: Characterization of sCMOS detectors for optical astronomy",
 		"conference": "SPIE Astronomical Telescopes + Instrumentation 2024",
 		"links": [
 			{
 				"name": "pdf",
-				"url": "../public/2409.16449v1.pdf"
-			}
-		]
-	},
-
-	{
-		"id": 2,
-		"author": "Wenzhangzhi Guo, Allison Lau, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs",
-		"title": "Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method",
-		"conference": "EG VCBM 2024",
-		"links": [
-			{
-				"name": "pdf",
-				"url": "../public/1-s2.0-S0097849324001924-main.pdf"
+				"url": "https://arxiv.org/abs/2409.16449"
 			}
 		]
 	},
 
 	{
 		"id": 1,
+		"author": "Wenzhangzhi Guo, Allison Lau, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs",
+		"title": "Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method",
+		"conference": "EG VCBM 2024",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://www.sciencedirect.com/science/article/pii/S0097849324001924?ref=pdf_download&fr=RR-2&rr=8e667ef07d20abd6"
+			}
+		]
+	},
+
+	{
+		"id": 2,
 		"author": "Allison Lau, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan",
 		"title": "Personalized Adaptation via In-Context Preference Learning",
 		"conference": "NeurIPS 2024 Workshop on Adaptive Foundation Models",
 		"links": [
 			{
 				"name": "pdf",
-				"url": "../public/2410.14001v1.pdf"
+				"url": "https://arxiv.org/abs/2410.14001v1"
 			}
 		]
 	}
