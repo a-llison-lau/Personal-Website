@@ -19,10 +19,9 @@ const About = (): JSX.Element => {
 						 <br/><a className = "text-sm">✉️ {personalInfo.about.email}</a>
 					</p>
 					<p className = "text-sm text-gray-600">
-						Research Interest: {personalInfo.about.interest}
+						<b>Research Interest</b>: {personalInfo.about.interest}
 					</p>
 					<p className = "text-sm text-gray-400">
-						<br/>Under construction......<br/>
 					</p>
 				</div>
 			</div>
