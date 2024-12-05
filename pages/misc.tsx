@@ -6,8 +6,8 @@ const Misc: NextPage<unknown> = () => {
     const [loading, setLoading] = useState(true);
 
     return (
-        <div className="min-h-screen bg-gray-50 px-4 py-8">
-            <h1 className="text-4xl font-bold text-center mb-8">Photography Portfolio</h1>
+        <div className="min-h-screen px-4 py-8">
+            <p className="text-base text-center mb-4">Also, I take pictures :D</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
                     <div key={index} className="overflow-hidden rounded shadow-lg group">
