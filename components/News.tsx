@@ -1,3 +1,5 @@
+import ExtLink from './ExtLink';
+
 const News = (): JSX.Element => {
     return (
         <section className="grid" id="news">
@@ -6,13 +8,7 @@ const News = (): JSX.Element => {
                 <ul className="list-disc">
                   {
                     <li>
-                        <strong>Dec 12</strong>:: I am in Vancouver for NeurIPS! I'll be presenting at the Adaptive Foundation Models Workshop on Dec 14 (Sat) at 4:30-5:30pm: 
-                        <a 
-                        href="https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf"
-                        className="underline"
-                        >
-                        Personalized Adaption via In-Context Preference Learning
-                      </a>
+                        <strong>Dec 10</strong>:: I am in Vancouver for NeurIPS! I'll be presenting a poster on Dec 14 (Sat) at 4:30-5:30pm: <ExtLink href= "https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf">Personalized Adaptation via In-Context Preference Learning </ExtLink> @ <ExtLink href= "https://adaptive-foundation-models.org/index.html">AFM </ExtLink>
                     </li>
                   }
                 </ul>
