@@ -9,6 +9,10 @@
 			{
 				"name": "pdf",
 				"url": "https://arxiv.org/abs/2410.14001v1"
+			},
+			{
+				"name": "poster",
+				"url": "https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf"
 			}
 		]
 	},
