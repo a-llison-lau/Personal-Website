@@ -16,7 +16,8 @@ const Misc: NextPage<unknown> = () => {
 
     return (
         <div className="min-h-screen px-4 py-8 relative">
-            <p className="text-base text-left mb-4">Also, I take pictures :D</p>
+            <h3>撮影 – Photograhy</h3>
+            <p className="text-base text-left mb-4">Lumix LX100 II :D</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
                     <div key={index} className="overflow-hidden rounded shadow-lg group">
