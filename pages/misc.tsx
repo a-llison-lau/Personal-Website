@@ -73,17 +73,23 @@ const Misc: NextPage<unknown> = () => {
             {/* Modal */}
             {modalImage && (
                 <div
-                    className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4" // Add padding here
                     onClick={closeModal} // Close modal when background is clicked
                 >
                     <div
-                        className="relative"
+                        className="relative w-full max-w-3xl h-auto bg-white p-4 rounded-lg shadow-lg"
                         onClick={(e) => e.stopPropagation()} // Prevent background click from closing modal
                     >
+                        <button
+                            className="absolute top-4 right-4 text-white bg-gray-900 p-2 rounded-full hover:bg-gray-700 transition duration-300"
+                            onClick={closeModal}
+                        >
+                            X
+                        </button>
                         <img
                             src={modalImage}
                             alt="Full Screen"
-                            className="max-w-full max-h-full object-contain"
+                            className="max-w-full max-h-screen object-contain" // Ensure image is responsive and doesn't overflow
                         />
                     </div>
                 </div>
