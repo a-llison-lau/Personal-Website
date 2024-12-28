@@ -6,6 +6,10 @@ import crafts from '../components/data/crafts.json';
 const Misc: NextPage<unknown> = () => {
     const [loading, setLoading] = useState(true);
     const [modalImage, setModalImage] = useState<string | null>(null);
+    const [galleryImages, setGalleryImages] = useState<string[]>([]); // Add state for gallery images
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false); // State to track gallery modal visibility
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // To track the current image in the gallery
+
 
     const openModal = (src: string) => {
         setModalImage(src);
@@ -13,11 +17,23 @@ const Misc: NextPage<unknown> = () => {
 
     const closeModal = () => {
         setModalImage(null);
+        setIsGalleryOpen(false);
     };
 
     const openGallery = (images: string[]) => {
-        // Logic to handle the gallery view can go here
-        console.log("Opening gallery with images:", images);
+        setGalleryImages(images); // Set the images for the gallery
+        setCurrentImageIndex(0); // Start at the first image in the gallery
+        setIsGalleryOpen(true); // Open the gallery modal
+    };
+
+    const navigateGallery = (direction: 'next' | 'prev') => {
+        setCurrentImageIndex((prevIndex) => {
+            if (direction === 'next') {
+                return (prevIndex + 1) % galleryImages.length; // Loop back to the first image
+            } else {
+                return (prevIndex - 1 + galleryImages.length) % galleryImages.length; // Loop back to the last image
+            }
+        });
     };
 
     return (
