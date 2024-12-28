@@ -65,6 +65,7 @@ const Misc: NextPage<unknown> = () => {
             </div>
 
             {/* Photography Section */}
+            <br></br>
             <h1 className="text-xl text-left mb-4">攝影 – Photography</h1>
             <p className="text-base text-left mb-4">Lumix LX100 II</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -88,7 +89,7 @@ const Misc: NextPage<unknown> = () => {
                     onClick={closeModal} // Close modal when background is clicked
                 >
                     <div
-                        className="relative"
+                        className="relative p-4 bg-black rounded-md"
                         onClick={(e) => e.stopPropagation()} // Prevent background click from closing modal
                     >
                         {galleryImages ? (
@@ -96,7 +97,7 @@ const Misc: NextPage<unknown> = () => {
                                 <img
                                     src={galleryImages[currentImageIndex]}
                                     alt="Gallery Image"
-                                    className="max-w-full max-h-full object-contain"
+                                    className="max-w-[90vw] max-h-[90vh] object-contain"
                                 />
                                 {/* Navigation Arrows */}
                                 <button
@@ -116,9 +117,16 @@ const Misc: NextPage<unknown> = () => {
                             <img
                                 src={modalImage!}
                                 alt="Full Screen"
-                                className="max-w-full max-h-full object-contain"
+                                className="max-w-[90vw] max-h-[90vh] object-contain"
                             />
                         )}
+                        {/* Close Button */}
+                        <button
+                            className="absolute top-4 right-4 text-white text-2xl"
+                            onClick={closeModal}
+                        >
+                            &#10005;
+                        </button>
                     </div>
                 </div>
             )}
