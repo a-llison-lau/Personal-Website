@@ -38,6 +38,23 @@ const Misc: NextPage<unknown> = () => {
 
     return (
         <div className="min-h-screen px-4 py-8 relative">
+            <h1 className="text-xl text-left mb-4">攝影 –– Photography</h1>
+            <p className="text-base text-left mb-4">Lumix LX100 II</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {photos.map((photo, index) => (
+                    <div key={index} className="overflow-hidden rounded shadow-lg group">
+                        <img
+                            src={photo.src}
+                            alt={photo.alt}
+                            className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+                            onClick={() => openModal(photo.src)}
+                            onLoad={() => setLoading(false)}
+                        />
+                    </div>
+                ))}
+            </div>
+            
             <h1 className="text-xl text-left mb-4">手作 –– Handicrafts</h1>
             <p className="text-base text-left mb-4">I like to make things :D</p>
 
@@ -69,22 +86,6 @@ const Misc: NextPage<unknown> = () => {
                 ))}
             </div>
 
-            <h1 className="text-xl text-left mb-4">攝影 –– Photography</h1>
-            <p className="text-base text-left mb-4">Lumix LX100 II</p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {photos.map((photo, index) => (
-                    <div key={index} className="overflow-hidden rounded shadow-lg group">
-                        <img
-                            src={photo.src}
-                            alt={photo.alt}
-                            className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
-                            onClick={() => openModal(photo.src)}
-                            onLoad={() => setLoading(false)}
-                        />
-                    </div>
-                ))}
-            </div>
             {/* Gallery Modal */}
             {isGalleryOpen && (
                 <div
