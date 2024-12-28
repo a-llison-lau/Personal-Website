@@ -101,23 +101,28 @@ const Misc: NextPage<unknown> = () => {
                         >
                             X
                         </button>
-                        <div className="flex justify-center mb-4">
+                        <div className="flex justify-center items-center mb-4">
+                            {/* Prev Button */}
                             <button
-                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700"
+                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700 transition duration-300"
                                 onClick={() => navigateGallery('prev')}
+                                style={{ width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                             >
-                                Prev
+                                &#8592;
                             </button>
+                            {/* Gallery Image */}
                             <img
                                 src={galleryImages[currentImageIndex]}
                                 alt={`Gallery Image ${currentImageIndex + 1}`}
-                                className="max-w-full max-h-screen object-contain"
+                                className="max-w-full max-h-screen object-contain mx-4"
                             />
+                            {/* Next Button */}
                             <button
-                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700"
+                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700 transition duration-300"
                                 onClick={() => navigateGallery('next')}
+                                style={{ width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                             >
-                                Next
+                                &#8594;
                             </button>
                         </div>
                     </div>
