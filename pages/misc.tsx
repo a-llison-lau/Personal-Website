@@ -85,6 +85,44 @@ const Misc: NextPage<unknown> = () => {
                     </div>
                 ))}
             </div>
+            {/* Gallery Modal */}
+            {isGalleryOpen && (
+                <div
+                    className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4"
+                    onClick={closeModal}
+                >
+                    <div
+                        className="relative w-full max-w-3xl h-auto bg-white p-4 rounded-lg shadow-lg"
+                        onClick={(e) => e.stopPropagation()} // Prevent modal closing when clicking inside
+                    >
+                        <button
+                            className="absolute top-4 right-4 text-white bg-gray-900 p-2 rounded-full hover:bg-gray-700 transition duration-300"
+                            onClick={closeModal}
+                        >
+                            X
+                        </button>
+                        <div className="flex justify-center mb-4">
+                            <button
+                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700"
+                                onClick={() => navigateGallery('prev')}
+                            >
+                                Prev
+                            </button>
+                            <img
+                                src={galleryImages[currentImageIndex]}
+                                alt={`Gallery Image ${currentImageIndex + 1}`}
+                                className="max-w-full max-h-screen object-contain"
+                            />
+                            <button
+                                className="text-white p-2 bg-gray-900 rounded-full hover:bg-gray-700"
+                                onClick={() => navigateGallery('next')}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal */}
             {modalImage && (
