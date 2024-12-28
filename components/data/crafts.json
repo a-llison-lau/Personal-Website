@@ -3,7 +3,41 @@
     "src": "/images/crafts/bedside_lamp_for_mom.jpg", 
     "alt": "Photo 1",
     "description": "bedside lamp for mom",
-    "additional pics": "None",
+    "additional pics": [],
+    "pdf": "None",
+    "url": "None"
+    },
+    { 
+    "src": "/images/crafts/name_tag.jpg", 
+    "alt": "Photo 2",
+    "description": "name tag for shpsx6",
+    "additional pics": [],
+    "pdf": "None",
+    "url": "None"
+    },
+    { 
+    "src": "/images/crafts/raincoat_for_karl.jpg", 
+    "alt": "Photo 3",
+    "description": "raincoat for karl",
+    "additional pics": [],
+    "pdf": "None",
+    "url": "None"
+    },
+    { 
+    "src": "/images/crafts/summer_cami_dress_for_hauyi.jpg", 
+    "alt": "Photo 4",
+    "description": "summer cami dress for hauyi",
+    "additional pics": [],
+    "pdf": "None",
+    "url": "None"
+    },
+    { 
+    "src": "/images/crafts/comic.jpg", 
+    "alt": "Photo 5",
+    "description": "summer cami dress for hauyi",
+    "additional pics": [],
+    "pdf": "None",
     "url": "None"
     }
+    
 ]
