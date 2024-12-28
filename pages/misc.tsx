@@ -54,7 +54,9 @@ const Misc: NextPage<unknown> = () => {
                     </div>
                 ))}
             </div>
-            
+
+            <div className="mb-12"></div>
+
             <h1 className="text-xl text-left mb-4">手作 –– Handicrafts</h1>
             <p className="text-base text-left mb-4">I like to make things :D</p>
 
