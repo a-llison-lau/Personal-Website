@@ -28,23 +28,26 @@ const Misc: NextPage<unknown> = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {crafts.map((craft, index) => (
                     <div key={index} className="overflow-hidden rounded shadow-lg group">
-                        <img
-                            src={craft.src}
-                            alt={craft.alt}
-                            className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
-                            onClick={() => {
-                                if (craft.pdf && craft.pdf !== "None") {
-                                    window.open(craft.pdf, '_blank'); // Open PDF in a new tab
-                                } else if (craft.url && craft.url !== "None") {
-                                    window.open(craft.url, '_blank'); // Open URL in a new tab
-                                } else if (craft['additional pics'] && craft['additional pics'].length > 0) {
-                                    openGallery(craft['additional pics']);
-                                } else {
-                                    openModal(craft.src);
-                                }
-                            }}
-                            onLoad={() => setLoading(false)}
-                        />
+                        <div className="w-full h-48 relative"> {/* Fixed height for consistent size */}
+                            <img
+                                src={craft.src}
+                                alt={craft.alt}
+                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+                                onClick={() => {
+                                    if (craft.pdf && craft.pdf !== "None") {
+                                        window.open(craft.pdf, '_blank'); // Open PDF in a new tab
+                                    } else if (craft.url && craft.url !== "None") {
+                                        window.open(craft.url, '_blank'); // Open URL in a new tab
+                                    } else if (craft['additional pics'] && craft['additional pics'].length > 0) {
+                                        openGallery(craft['additional pics']);
+                                    } else {
+                                        openModal(craft.src);
+                                    }
+                                }}
+                                onLoad={() => setLoading(false)}
+                                loading="lazy"
+                            />
+                        </div>
                         <p className="mt-2 text-center text-sm text-gray-700">{craft.description}</p>
                     </div>
                 ))}
