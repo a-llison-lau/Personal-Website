@@ -31,7 +31,7 @@ const Misc: NextPage<unknown> = () => {
                         <img
                             src={craft.src}
                             alt={craft.alt}
-                            className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+                            className="w-40 h-40 object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
                             onClick={() => {
                                 if (craft.pdf && craft.pdf !== "None") {
                                     window.open(craft.pdf, '_blank'); // Open PDF in a new tab
@@ -49,6 +49,7 @@ const Misc: NextPage<unknown> = () => {
                     </div>
                 ))}
             </div>
+
 
             <h1 className="text-xl text-left mb-4">攝影 –– Photography</h1>
             <p className="text-base text-left mb-4">Lumix LX100 II</p>
