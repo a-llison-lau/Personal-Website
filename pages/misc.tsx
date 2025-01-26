@@ -38,8 +38,8 @@ const Misc: NextPage<unknown> = () => {
 
     return (
         <div className="min-h-screen px-4 py-8 relative">
-            <h1 className="text-xl text-left mb-4">::攝影 photography</h1>
-            <p className="text-base text-left mb-4">I occasionally take pictures with my Lumix LX100 II. An aspiring photography writer!</p>
+            <h1 className="text-xl text-left mb-4">:: 攝影 photography</h1>
+            <p className="text-base text-left mb-4">I occasionally take pictures with my Lumix LX100 II. An aspiring photography writer.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
@@ -57,7 +57,7 @@ const Misc: NextPage<unknown> = () => {
 
             <div className="mb-12"></div>
 
-            <h1 className="text-xl text-left mb-4">::手作 handicrafts</h1>
+            <h1 className="text-xl text-left mb-4">:: 手作 handicrafts</h1>
             <p className="text-base text-left mb-4">I occassionally make things :D</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
