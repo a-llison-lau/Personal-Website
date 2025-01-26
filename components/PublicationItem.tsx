@@ -34,7 +34,7 @@ const PublicationItem = ({ publication, index }: Props): JSX.Element => {
 
             {/* Picture Section (Hidden on mobile, 20% width on larger screens) */}
             {publication.picture && (
-                <div className="hidden sm:block w-[20%] flex-shrink-0">
+                <div className="hidden sm:block w-[30%] flex-shrink-0">
                     <img
                         src={publication.picture}
                         alt={`${publication.title} thumbnail`}
