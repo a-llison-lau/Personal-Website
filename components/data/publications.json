@@ -15,7 +15,7 @@
 				"url": "https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf"
 			}
 		],
-		"picture": "/images/ppt.png"
+		"picture": "/images/publications/ppt.png"
 	},
 	{
 		"id": 1,
@@ -29,7 +29,7 @@
 				"url": "https://www.sciencedirect.com/science/article/pii/S0097849324001924?ref=pdf_download&fr=RR-2&rr=8e667ef07d20abd6"
 			}
 		],
-		"picture": ""
+		"picture": "/images/publications/skinflap.png"
 	},
 	{
 		"id": 0,
@@ -43,6 +43,6 @@
 				"url": "https://arxiv.org/abs/2409.16449"
 			}
 		],
-		"picture": ""
+		"picture": "/images/publications/cmos.png"
 	}
 ]
