@@ -1,26 +1,15 @@
 import ExtLink from './ExtLink';
 
 interface Props {
-    publication: any; // No strict typing
+    publication: any; // Dynamic typing for flexibility
     index: number;
 }
 
 const PublicationItem = ({ publication, index }: Props): JSX.Element => {
     return (
         <div className="mt-4 mb-8 flex items-start">
-            {/* Picture Section */}
-            {publication.picture && (
-                <div className="w-48 h-48 flex-shrink-0 mr-4">
-                    <img
-                        src={publication.picture}
-                        alt={`${publication.title} thumbnail`}
-                        className="w-full h-full object-cover rounded"
-                    />
-                </div>
-            )}
-
             {/* Text Section */}
-            <div className="flex-1">
+            <div className="flex-1 pr-4">
                 <p className="text-base text-gray-500">
                     [{index}] <b><i>{publication.title}</i></b>
                     <br />
@@ -42,6 +31,17 @@ const PublicationItem = ({ publication, index }: Props): JSX.Element => {
                     </p>
                 )}
             </div>
+
+            {/* Picture Section (Hidden on mobile) */}
+            {publication.picture && (
+                <div className="w-24 h-24 flex-shrink-0 hidden sm:block">
+                    <img
+                        src={publication.picture}
+                        alt={`${publication.title} thumbnail`}
+                        className="w-full h-full object-cover rounded"
+                    />
+                </div>
+            )}
         </div>
     );
 };
