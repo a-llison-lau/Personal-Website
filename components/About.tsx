@@ -15,7 +15,7 @@ const About = (): JSX.Element => {
 					<h1 className="text-4xl font-bold pb-8 md:pb-0">{personalInfo.name}</h1>
 					<p>
 						I am a {personalInfo.about.year} undergrad student
-						in computer science and physics at the <ExtLink href= {personalInfo.about.college.link}>{personalInfo.about.college.name} </ExtLink>, where I am currently working under the supervision of Prof. Rahul Krishnan.
+						in computer science and physics at the <ExtLink href= {personalInfo.about.college.link}>{personalInfo.about.college.name}</ExtLink>, where I am currently working under the supervision of Prof. Rahul Krishnan.
 						 <br/><a className = "text-sm">✉️ {personalInfo.about.email}</a>
 					</p>
 					<p className = "text-sm text-gray-600">
