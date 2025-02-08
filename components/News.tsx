@@ -3,8 +3,8 @@ import ExtLink from './ExtLink';
 const News = (): JSX.Element => {
     return (
         <section className="grid" id="news">
-            <h2 className="text-xl font-bold mt-12 mb-4">News</h2>
-            <div className="text-base ml-4 text-gray-700">
+            <h1 className="text-2xl font-bold text-left mb-4">News</h1>
+            <div className="text-base ml-4 text-gray-700 mb-8">
                 <ul className="list-disc">
                   {
                     <li>
@@ -13,7 +13,6 @@ const News = (): JSX.Element => {
                   }
                 </ul>
             </div>
-
         </section>
     );
 };
