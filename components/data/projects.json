@@ -4,7 +4,7 @@
         "description": "An interactive visualization of the three body problem. Made with react-three-fiber.",
         "img": "/images/projects/three-body.png",
         "date": "February 2025",
-        "tags": ["classical-mechanics", "react", "react-three-fiber"],
+        "tags": ["classical-mechanics", "react", "react-three-fiber", "C++"],
         "github": "https://github.com/a-llison-lau/Three-Body-Problem",
         "project link": "https://three-body-problem.vercel.app"
     }
