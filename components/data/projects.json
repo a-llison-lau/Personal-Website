@@ -7,5 +7,14 @@
         "tags": ["classical-mechanics", "react", "react-three-fiber", "C++"],
         "github": "https://github.com/a-llison-lau/Three-Body-Problem",
         "project link": "https://three-body-problem.vercel.app"
+    },
+    {
+        "title": "Ising Model Playground",
+        "description": "A visualization of Ising models with advanced topologies, spin dynamics, and interactive controls.",
+        "img": "https://imgur.com/aXgbta8.gif",
+        "date": "Feb 2025",
+        "tags": ["statistical-mechanics", "react", "WebGL"],
+        "github": "https://github.com/a-llison-lau/Ising-Model-Playground",
+        "project link": "https://ising-model-playground.vercel.app/"
     }
 ]
