@@ -11,7 +11,7 @@
     {
         "title": "Ising Model Playground",
         "description": "A visualization of Ising models with interactive controls.",
-        "img": "https://imgur.com/aXgbta8.gif",
+        "img": "https://imgur.com/1Vvec41.gif",
         "date": "Feb 2025",
         "tags": ["statistical-mechanics", "react", "WebGL"],
         "github": "https://github.com/a-llison-lau/Ising-Model-Playground",
