@@ -10,18 +10,18 @@
         "Mail": "allison.lau@mail.utoronto.ca"
     },
     "about": {
-        "year": "4th-year",
+        "year": "final year",
         "college": {
             "name": "University of Toronto",
             "link": "https://web.cs.toronto.edu/"
         },
         "email": "allison.lau@mail.utoronto.ca",
-        "interest": "I am interested in developing and improving fine-tuning and alignment methods for Large Language Models (LLMs), and Reinforcement Learning from Human Feedback (RLHF). I am also interested in intrepretability of LLMs, and would love to explore computational social science as well. Prior to my work in LLMs, I worked on several projects in optical/computational imaging and graphics."
+        "interest": "I am interested in developing and improving fine-tuning and alignment methods for Large Language Models (LLMs), and Reinforcement Learning from Human Feedback (RLHF). Prior to my work in LLMs, I worked on several projects in optical/computational imaging and graphics."
     },
     "love": "https://henry-yip.github.io/",
     "education": [
         {
-            "name": "University of Toronto (2021-2025, HBsc)",
+            "name": "University of Toronto (2021-2025, BS)",
             "link": "https://web.cs.toronto.edu/"
         }
     ]
