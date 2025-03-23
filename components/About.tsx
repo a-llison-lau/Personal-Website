@@ -35,8 +35,8 @@ const About = (): JSX.Element => {
           </p>
           <p className="text-base text-gray-500">
             I like to learn as broadly as possible. To me, knowledge isn't just
-            in mastering a subject, but in discovering new perspectives. For me,
-            learning isn't a hurdle — it's the whole point. If something is
+            in mastering a subject, but in discovering new perspectives.
+            Learning isn't a hurdle — it's the whole point. If something is
             unfamiliar, that's an invitation to dive in. I'm open to all sorts
             of collaborations! ᴖᴥᴖ
           </p>
