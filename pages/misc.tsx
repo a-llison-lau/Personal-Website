@@ -83,7 +83,7 @@ const Misc: NextPage<unknown> = () => {
                                 loading="lazy"
                             />
                         </div>
-                        <p className="mt-2 text-center text-sm text-gray-700">{craft.description}</p>
+                        <p className="mt-1 mb-1 text-center text-sm text-gray-700">{craft.description}</p>
                     </div>
                 ))}
             </div>

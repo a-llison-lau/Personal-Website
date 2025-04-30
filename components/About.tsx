@@ -27,20 +27,15 @@ const About = (): JSX.Element => {
             <ExtLink href={personalInfo.about.college.link}>
               {personalInfo.about.college.name}
             </ExtLink>
-            , where I am currently working under the supervision of Prof. Rahul
-            Krishnan.
+            , under the mentorship of Prof. Rahul Krishnan.
           </p>
           <p className="text-lg text-gray-700">
             {personalInfo.about.interest} <br />{" "}
           </p>
-          <p className="text-base text-gray-500">
-            I like to learn as broadly as possible. To me, knowledge isn't just
-            in mastering a subject, but in discovering new perspectives.
-            Learning isn't a hurdle — it's the whole point. If something is
-            unfamiliar, that's an invitation to dive in. I'm open to all sorts
-            of collaborations! ᴖᴥᴖ
+          <p className="text-base text-gray-700">
+          I seek to learn as broadly as possible — not just to master a subject, but to uncover new ways of seeing. I am an explorer at heart, driven by a curiosity to understand the world, humans, intelligent systems, and the relationship between the artificial and the natural. My work spans diverse research domains, including causal effect estimation and systems security in LLMs, computational sensing, and interdisciplinary science and instrumentation. I believe that computation should serve not just optimization, but meaning.
           </p>
-          <a className="text-sm">✉️ {personalInfo.about.email}</a>
+          {/* <a className="text-sm">✉️ {personalInfo.about.email}</a> */}
           {/* <p className="text-sm text-gray-400">.. Last updated: Nov 21, 2024</p> */}
         </div>
       </div>

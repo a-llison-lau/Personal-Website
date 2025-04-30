@@ -1,9 +1,9 @@
 [
     { 
-    "src": "/images/crafts/bedside_lamp_for_mom.jpg", 
+    "src": "/images/crafts/bedside_lamp_for_mom_2.jpeg", 
     "alt": "Photo 1",
     "description": "bedside lamp for mom",
-    "additional pics": [],
+    "additional pics": ["/images/crafts/bedside_lamp_for_mom_2.jpeg", "/images/crafts/bedside_lamp_for_mom_1.jpeg"],
     "pdf": "None",
     "url": "None"
     },
@@ -32,8 +32,16 @@
     "url": "None"
     },
     { 
-    "src": "/images/crafts/comic.jpg", 
+    "src": "/images/crafts/animal_sketches_1.jpeg", 
     "alt": "Photo 5",
+    "description": "canadian animal sketches",
+    "additional pics": ["/images/crafts/animal_sketches_1.jpeg", "/images/crafts/animal_sketches_2.jpeg"],
+    "pdf": "None",
+    "url": "None"
+    },
+    { 
+    "src": "/images/crafts/comic.jpg", 
+    "alt": "Photo 6",
     "description": "comic for my friend's birthday",
     "additional pics": [],
     "pdf": "/images/crafts/派對人的奇妙冒險之金金狗的身世.pdf",
@@ -41,7 +49,7 @@
     },
     { 
     "src": "/images/crafts/stickers.png", 
-    "alt": "Photo 6",
+    "alt": "Photo 7",
     "description": "sticker pack for my brother",
     "additional pics": ["/images/crafts/stickers/1 2.PNG", "/images/crafts/stickers/2 2.PNG", "/images/crafts/stickers/3 2.PNG", "/images/crafts/stickers/4 2.PNG", "/images/crafts/stickers/5 2.PNG", "/images/crafts/stickers/6 2.PNG", "/images/crafts/stickers/7 2.PNG", "/images/crafts/stickers/8 2.PNG", "/images/crafts/stickers/9 2.PNG", "/images/crafts/stickers/10 2.PNG", "/images/crafts/stickers/11 2.PNG", "/images/crafts/stickers/12 2.PNG", "/images/crafts/stickers/13 2.PNG", "/images/crafts/stickers/14 2.PNG", "/images/crafts/stickers/15 2.PNG"],
     "pdf": "None",

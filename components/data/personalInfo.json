@@ -16,10 +16,14 @@
             "link": "https://web.cs.toronto.edu/"
         },
         "email": "allison.lau@mail.utoronto.ca",
-        "interest": "I am interested in developing and improving fine-tuning and alignment methods for Large Language Models (LLMs), and Reinforcement Learning from Human Feedback (RLHF). Prior to my work in LLMs, I worked on several projects in optical/computational imaging and graphics."
+        "interest": "I am currently working on alignment methods and side-channel attacks on Large Language Models (LLMs)."
     },
     "love": "https://henry-yip.github.io/",
     "education": [
+        {
+            "name": "ETH Zurich (2025-2027, MS)",
+            "link": "https://inf.ethz.ch/"
+        },
         {
             "name": "University of Toronto (2021-2025, BS)",
             "link": "https://web.cs.toronto.edu/"
