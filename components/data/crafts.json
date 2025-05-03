@@ -1,13 +1,5 @@
 [
     { 
-    "src": "/images/crafts/bedside_lamp_for_mom_2.jpeg", 
-    "alt": "Photo 1",
-    "description": "bedside lamp for mom",
-    "additional pics": ["/images/crafts/bedside_lamp_for_mom_2.jpeg", "/images/crafts/bedside_lamp_for_mom_1.jpeg"],
-    "pdf": "None",
-    "url": "None"
-    },
-    { 
     "src": "/images/crafts/raincoat_for_karl_1.jpg", 
     "alt": "Photo 3",
     "description": "raincoat for karl",
@@ -22,14 +14,5 @@
     "additional pics": ["/images/crafts/summer_cami_dress_for_hauyi_1.jpg", "/images/crafts/summer_cami_dress_for_hauyi_2.jpg"],
     "pdf": "None",
     "url": "None"
-    },
-    { 
-    "src": "/images/crafts/stickers.png", 
-    "alt": "Photo 7",
-    "description": "sticker pack for my brother",
-    "additional pics": ["/images/crafts/stickers/1 2.PNG", "/images/crafts/stickers/2 2.PNG", "/images/crafts/stickers/3 2.PNG", "/images/crafts/stickers/4 2.PNG", "/images/crafts/stickers/5 2.PNG", "/images/crafts/stickers/6 2.PNG", "/images/crafts/stickers/7 2.PNG", "/images/crafts/stickers/8 2.PNG", "/images/crafts/stickers/9 2.PNG", "/images/crafts/stickers/10 2.PNG", "/images/crafts/stickers/11 2.PNG", "/images/crafts/stickers/12 2.PNG", "/images/crafts/stickers/13 2.PNG", "/images/crafts/stickers/14 2.PNG", "/images/crafts/stickers/15 2.PNG"],
-    "pdf": "None",
-    "url": "None"
     }
-    
 ]
