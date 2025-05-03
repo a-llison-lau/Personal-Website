@@ -16,10 +16,10 @@
     "url": "None"
     },
     { 
-    "src": "/images/crafts/raincoat_for_karl.jpg", 
+    "src": "/images/crafts/raincoat_for_karl_1.jpg", 
     "alt": "Photo 3",
     "description": "raincoat for karl",
-    "additional pics": [],
+    "additional pics": ["/images/crafts/raincoat_for_karl_1.jpg", "/images/crafts/raincoat_for_karl_2.jpg", "/images/crafts/raincoat_for_karl_3.jpg"],
     "pdf": "None",
     "url": "None"
     },
