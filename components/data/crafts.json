@@ -7,14 +7,6 @@
     "pdf": "None",
     "url": "None"
     },
-    // { 
-    // "src": "/images/crafts/name_tag.jpg", 
-    // "alt": "Photo 2",
-    // "description": "name tag for shpsx6",
-    // "additional pics": [],
-    // "pdf": "None",
-    // "url": "None"
-    // },
     { 
     "src": "/images/crafts/raincoat_for_karl_1.jpg", 
     "alt": "Photo 3",
@@ -31,22 +23,6 @@
     "pdf": "None",
     "url": "None"
     },
-    // { 
-    // "src": "/images/crafts/animal_sketches_1.jpeg", 
-    // "alt": "Photo 5",
-    // "description": "canadian animal sketches",
-    // "additional pics": ["/images/crafts/animal_sketches_1.jpeg", "/images/crafts/animal_sketches_2.jpeg"],
-    // "pdf": "None",
-    // "url": "None"
-    // },
-    // { 
-    // "src": "/images/crafts/comic.jpg", 
-    // "alt": "Photo 6",
-    // "description": "comic for my friend's birthday",
-    // "additional pics": [],
-    // "pdf": "/images/crafts/派對人的奇妙冒險之金金狗的身世.pdf",
-    // "url": "None"
-    // },
     { 
     "src": "/images/crafts/stickers.png", 
     "alt": "Photo 7",
