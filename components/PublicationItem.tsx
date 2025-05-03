@@ -10,19 +10,19 @@ const PublicationItem = ({ publication, index }: Props): JSX.Element => {
         <div className="mt-4 mb-8 flex items-start">
             {/* Text Section */}
             <div className="flex-1 pr-4">
-                <p className="text-base text-gray-500">
+                <p className="text-base">
                     [{index}] <b><i>{publication.title}</i></b>
                     <br />
                     {publication.author}
                     <br />
                     <b>{publication.conference}</b>
                     <br />
-                    <span className="text-gray-400">{publication.abstract || 'No abstract available.'}</span>
+                    <span className="">{publication.abstract || 'No abstract available.'}</span>
                 </p>
 
                 {/* Links (Left-aligned) */}
                 {publication.links?.length > 0 && (
-                    <p className="text-gray-500 flex flex-wrap mt-2 text-sm font-bold">
+                    <p className="flex flex-wrap mt-2 text-sm font-bold">
                         {publication.links.map((linkItem: any, idx: number) => (
                             <ExtLink href={linkItem.url} key={idx}>
                                 [{linkItem.name}]&nbsp;

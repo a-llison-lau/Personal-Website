@@ -4,7 +4,7 @@ const News = (): JSX.Element => {
     return (
         <section className="grid mt-8" id="news">
             <h1 className="text-2xl font-bold text-left mb-4">News</h1>
-            <div className="text-base ml-4 text-gray-700 mb-8">
+            <div className="text-base ml-4 mb-8">
                 <ul className="list-disc">
                   {
                     <li>

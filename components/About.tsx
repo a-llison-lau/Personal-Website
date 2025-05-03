@@ -1,5 +1,4 @@
 import Image from "next/image";
-
 import ExtLink from "./ExtLink";
 import ProfileImage from "./ProfileImage";
 import SupportingBox from "./SupportingBox";
@@ -29,10 +28,10 @@ const About = (): JSX.Element => {
             </ExtLink>
             , under the mentorship of Prof. Rahul Krishnan.
           </p>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg">
             {personalInfo.about.interest} <br />{" "}
           </p>
-          <p className="text-base text-gray-700">
+          <p className="text-base">
             I seek to learn as broadly as possible — not just to master a
             subject, but to uncover new ways of seeing. I am an explorer at
             heart, driven by a curiosity to understand the world, humans,

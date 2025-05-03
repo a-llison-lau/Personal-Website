@@ -38,7 +38,7 @@ const Misc: NextPage<unknown> = () => {
 
     return (
         <div className="min-h-screen px-4 py-8 relative">
-            <h1 className="text-2xl font-bold text-left mb-4">:: photography</h1>
+            <h1 className="text-2xl font-bold text-left mb-4">Photography</h1>
             <p className="text-base text-left mb-4">I occasionally take pictures with my Lumix LX100 II.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -57,7 +57,7 @@ const Misc: NextPage<unknown> = () => {
 
             <div className="mb-12"></div>
 
-            <h1 className="text-2xl font-bold text-left mb-4">:: crafts</h1>
+            <h1 className="text-2xl font-bold text-left mb-4">Crafts</h1>
             <p className="text-base text-left mb-4">I occassionally make things :D</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -83,7 +83,7 @@ const Misc: NextPage<unknown> = () => {
                                 loading="lazy"
                             />
                         </div>
-                        <p className="mt-1 mb-1 text-center text-sm text-gray-700">{craft.description}</p>
+                        <p className="mt-1 mb-1 text-center text-sm">{craft.description}</p>
                     </div>
                 ))}
             </div>
