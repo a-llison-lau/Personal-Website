@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 const ProfileImage = (): JSX.Element => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSpinning, setIsSpinning] = useState(true);
-  const images = ["/images/me_1.jpg", "/images/me_2.jpg", "/images/me_3.jpg"];
+  const images = ["/images/me_1.jpg", "/images/me_2.jpg"];
   const spinTimerRef = useRef<NodeJS.Timeout | null>(null);
   const slowdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
