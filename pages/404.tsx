@@ -1,42 +1,27 @@
-import {NextPage} from 'next';
+import { NextPage } from "next";
+import { useEffect } from "react";
 
-const FourOFour: NextPage<unknown> = () => (
-	<section className="grid gap-12">
-		<h2 className="text-2xl font-bold">404: Page cannot be found.</h2>
-		{/*<p>
-	        \          SORRY            /
-	         \                         /
-	          \    This page does     /
-	           ]   not exist yet.    [    ,'|
-	           ]                     [   /  |
-	           ]___               ___[ ,'   |
-	           ]  ]\             /[  [ |:   |
-	           ]  ] \           / [  [ |:   |
-	           ]  ]  ]         [  [  [ |:   |
-	           ]  ]  ]__     __[  [  [ |:   |
-	           ]  ]  ] ]\ _ /[ [  [  [ |:   |
-	           ]  ]  ] ] (#) [ [  [  [ :===='
-	           ]  ]  ]_].nHn.[_[  [  [
-	           ]  ]  ]  HHHHH. [  [  [
-	           ]  ] /   `HH("N  \ [  [
-	           ]__]/     HHH  "  \[__[
-	           ]         NNN         [
-	           ]         N/"         [
-	           ]         N H         [
-	          /          N            \
-	         /           q,            \
-	        /                           \
-        </p>*/}
-		<blockquote
-			className="italic m-0 pl-4 border-l-4 border-gray-400 grid gap-5"
-			cite="https://www.opensourceshakespeare.org/views/plays/play_view.php?WorkID=henry6p3&Act=3&Scene=3&Scope=scene"
-		>
-			<p>hi</p>
-			<footer>
-				— P
-			</footer>
-		</blockquote>
-	</section>
-);
+const FourOFour: NextPage<unknown> = () => {
+  useEffect(() => {
+    // Redirect after 3 seconds
+    const timer = setTimeout(() => {
+      window.location.href = "https://allison-lau.vercel.app/";
+    }, 3000);
+
+    // Cleanup the timer when the component is unmounted
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <section className="grid gap-12">
+      <h2 className="text-2xl font-bold">404: Page cannot be found.</h2>
+      <p>Redirecting you back to the homepage...</p>
+      <p>
+        If you're not redirected,{" "}
+        <a href="https://allison-lau.vercel.app/">click here</a>.
+      </p>
+    </section>
+  );
+};
 
 export default FourOFour;
