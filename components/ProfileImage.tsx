@@ -65,10 +65,8 @@ const ProfileImage = (): JSX.Element => {
 
             if (randomValue < 0.75) {
               finalIndex = 0; // 75% chance for me_1.jpg
-            } else if (randomValue < 0.875) {
-              finalIndex = 1; // 12.5% chance for me_2.jpg
             } else {
-              finalIndex = 2; // 12.5% chance for me_3.jpg
+              finalIndex = 1; // 12.5% chance for me_2.jpg
             }
 
             setCurrentImageIndex(finalIndex);
