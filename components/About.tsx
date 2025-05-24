@@ -20,28 +20,25 @@ const About = (): JSX.Element => {
           <h1 className="text-4xl font-bold pb-10 md:pb-0">
             {personalInfo.name}
           </h1>
+          <h3 className="text-xl font-bold md:pb-0">Hello! 👋 👋</h3>
           <p>
-            Hi! I am a {personalInfo.about.year} undergraduate student in
-            computer science and physics at the{" "}
+            I am an incoming Master's student in computer science at{" "}
+            <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
+            aspire to work on research problems at the intersection of computer
+            graphics and machine learning. I completed my undergraduate degree
+            in computer science and physics at the{" "}
             <ExtLink href={personalInfo.about.college.link}>
               {personalInfo.about.college.name}
             </ExtLink>
-            , under the mentorship of Prof. Rahul Krishnan.
+            , under the supervision of Prof.{" "}
+            <ExtLink href="https://www.cs.toronto.edu/~rahulgk/">
+              Rahul Krishnan
+            </ExtLink>
+            . {personalInfo.about.interest} <br />{" "}
           </p>
-          <p className="text-lg">
-            {personalInfo.about.interest} <br />{" "}
-          </p>
-          <p className="text-base">
-            I seek to learn as broadly as possible — not just to master a
-            subject, but to uncover new ways of seeing. I am an explorer at
-            heart, driven by a curiosity to understand the world, humans,
-            intelligent systems, and the relationship between the artificial and
-            the natural. My work spans diverse research domains, including
-            causal effect estimation and systems security in LLMs, computational
-            sensing, and interdisciplinary science and instrumentation. I
-            believe that computation should serve not just optimization, but
-            meaning.
-          </p>
+          {/* <p className="text-lg">
+             {personalInfo.about.interest} <br />{" "}
+          </p> */}
           {/* <a className="text-sm">✉️ {personalInfo.about.email}</a> */}
           {/* <p className="text-sm text-gray-400">.. Last updated: Nov 21, 2024</p> */}
         </div>
