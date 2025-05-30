@@ -8,8 +8,9 @@ const MoreAbout = (): JSX.Element => {
         humans, intelligent systems, and the relationship between the artificial
         and the natural. My work spans diverse research domains, including
         causal effect estimation and systems security in LLMs, computational
-        sensing, and interdisciplinary science and instrumentation. I believe
-        that computation should serve not just optimization, but meaning.
+        sensing, and interdisciplinary science and instrumentation. Outside of
+        deep tech, I am exploring innovation and venture. In my free time, I
+        like to enjoy the outdoors and learn something new!
       </div>
     </section>
   );
