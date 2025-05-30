@@ -20,7 +20,7 @@ const About = (): JSX.Element => {
           <h1 className="text-4xl font-bold pb-10 md:pb-0">
             {personalInfo.name}
           </h1>
-          <h3 className="text-xl font-bold md:pb-0">Hello! 👋 👋</h3>
+          <h3 className="text-xl font-bold md:pb-0">Hi! 👋 👋</h3>
           <p>
             I am an incoming Master's student in computer science at{" "}
             <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
