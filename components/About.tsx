@@ -22,7 +22,7 @@ const About = (): JSX.Element => {
           </h1>
           <h3 className="text-xl font-bold md:pb-0">Hi! 👋 👋</h3>
           <p>
-            I am an incoming Master's student in computer science at{" "}
+            I am a Master's student in computer science at{" "}
             <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
             aspire to work on research problems at the intersection of computer
             graphics and machine learning. I completed my undergraduate degree
