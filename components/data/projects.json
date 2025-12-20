@@ -1,20 +1,9 @@
 [
     {
-        "title": "The Three Body Problem",
-        "description": "An interactive visualization of the three body problem. Made with react-three-fiber.",
-        "img": "https://imgur.com/XpemDaf.gif",
-        "date": "Feb 2025",
-        "tags": ["classical-mechanics", "react", "react-three-fiber", "C++"],
+        "title": "Plover Renderer",
+        "description": "A physically-based renderer written in modern C++20, featuring Monte Carlo light transport, BVH acceleration with optional Intel Embree support, and a clean extensible architecture, inspired by Nori. Designed as a learning project to explore renderer design and ray tracing techniques. Work WIP since Dec 2025!",
+        "img": "/images/gallery/scene.png",
         "github": "https://github.com/a-llison-lau/Three-Body-Problem",
         "project link": "https://three-body-problem.vercel.app"
-    },
-    {
-        "title": "Ising Model Playground",
-        "description": "A visualization of Ising models with interactive controls.",
-        "img": "https://imgur.com/1Vvec41.gif",
-        "date": "Feb 2025",
-        "tags": ["statistical-mechanics", "react", "WebGL"],
-        "github": "https://github.com/a-llison-lau/Ising-Model-Playground",
-        "project link": "https://ising-model-playground.vercel.app/"
     }
 ]

@@ -20,13 +20,12 @@ const About = (): JSX.Element => {
           <h1 className="text-4xl font-bold pb-10 md:pb-0">
             {personalInfo.name}
           </h1>
-          <h3 className="text-xl font-bold md:pb-0">Hi! 👋 👋</h3>
+          <h3 className="text-xl font-bold md:pb-0">Grüezi 👋 !</h3>
           <p>
             I am a Master's student in computer science at{" "}
             <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
-            aspire to work on research problems at the intersection of computer
-            graphics and machine learning. I completed my undergraduate degree
-            in computer science and physics at the{" "}
+            aspire to work on research problems in rendering or physics-based animations. I am currently also a research engineer at <ExtLink href="https://www.vocadian.ai">Vocadian</ExtLink>. I did my undergraduate studies
+            in physics and computer science at the{" "}
             <ExtLink href={personalInfo.about.college.link}>
               {personalInfo.about.college.name}
             </ExtLink>

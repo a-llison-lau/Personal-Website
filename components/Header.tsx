@@ -31,8 +31,8 @@ const Header = ({
         </Link>
         <nav className="flex items-center justify-between pr-4">
           <NavLink title="About" href="/#about" />
-          <NavLink title="Publications" href="/#publications" />
-          <NavLink title="Projects" href="/projects" />
+          <NavLink title="Work" href="/#work" />
+          <NavLink title="Blog" href="/blog" />
           <NavLink title="Misc" href="/misc" />
 
           <button

@@ -1,0 +1,62 @@
+[
+	{
+		"id": 3,
+		"author": "Allison Lau, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan",
+		"title": "Personalized Adaptation via In-Context Preference Learning",
+		"conference": "NeurIPS 2024 Workshop on Adaptive Foundation Models",
+		"abstract": "We introduce the Preference Pretrained Transformer (PPT), a method for adaptive personalization using online user feedback. PPT combines offline training with a history-dependent loss and online adaptation through in-context learning to dynamically align with individual preferences.",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://arxiv.org/abs/2410.14001v1"
+			},
+			{
+				"name": "poster",
+				"url": "https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf"
+			}
+		],
+		"picture": "/images/work/ppt.png"
+	},
+	{
+		"id": 2,
+		"author": "Alexander Johansen, Kyu Hur, Jack Hung, Rodrigo Castellon, Tristan Peng, Stephanie Ren, Renee White, Chanyeong Park, Allison Lau, Saarth Shah, Hee Jung Choi, William Wang, Pann Sripitak, Mohamed Elhusinni, Michael Snyder",
+		"title": "The Wearipedia Project: a free and open-source resource for understanding and using wearables in decentralized clinical trials",
+		"conference": "MedRXiv",
+		"abstract": "We aimed to build a resource for clinical researchers to select the best device for their research study, and programming tools to facilitate wearable research.",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://www.medrxiv.org/content/10.1101/2025.05.12.25327465v1.full.pdf"
+			}
+		],
+		"picture": "/images/work/wearipedia.png"
+	},
+	{
+		"id": 1,
+		"author": "Wenzhangzhi Guo, Allison Lau, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs",
+		"title": "Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method",
+		"conference": "EG VCBM 2024",
+		"abstract": "We developed a 3D mesh generation pipeline to model skin flap surgeries and systematically explored variations in undermining regions. We conducted suture force and suture line analyses to assess outcomes across these regions, and vsualized skin flap procedures using personalized 3D face scans for enhanced patient-specific planning.",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://www.sciencedirect.com/science/article/pii/S0097849324001924?ref=pdf_download&fr=RR-2&rr=8e667ef07d20abd6"
+			}
+		],
+		"picture": "/images/work/skinflap.png"
+	},
+	{
+		"id": 0,
+		"author": "Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, Allison Lau, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li",
+		"title": "Beyond CCDs: Characterization of sCMOS detectors for optical astronomy",
+		"conference": "SPIE Astronomical Telescopes + Instrumentation 2024",
+		"abstract": "We highlight the suitability of sCMOS detectors for space imaging, evaluating detectors like the Teledyne Prime 95B for wide fields and Hamamatsu Orca-Quest for deep-sky imaging, which demonstrated exceptional performance and low noise levels.",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://arxiv.org/abs/2409.16449"
+			}
+		],
+		"picture": "/images/work/cmos.png"
+	}
+]

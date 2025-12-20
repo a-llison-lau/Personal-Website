@@ -37,7 +37,7 @@ npm run build
 
 ##### Customize your info
 - in components/data/personalInfo.json
-- in components/data/publications.json
+- in components/data/work.json
 - in components/data/projects.json
 - in components/data/teaching.json
 - in .env
