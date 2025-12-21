@@ -3,7 +3,7 @@
         "title": "Plover Renderer",
         "description": "A physically-based renderer written in modern C++20, featuring Monte Carlo light transport, BVH acceleration with optional Intel Embree support, and a clean extensible architecture, inspired by Nori. Designed as a learning project to explore renderer design and ray tracing techniques. Work WIP since Dec 2025!",
         "img": "/images/gallery/scene.png",
-        "github": "https://github.com/a-llison-lau/Three-Body-Problem",
-        "project link": "https://three-body-problem.vercel.app"
+        "github": "https://github.com/a-llison-lau/plover",
+        "project link": ""
     }
 ]
