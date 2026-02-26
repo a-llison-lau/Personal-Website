@@ -426,7 +426,19 @@ const markdownComponents = {
 };
 
 const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMarkdown, bodyMarkdown, toc}) => (
-	<div className="w-full px-2 py-6">
+	<div id="nori-content" className="w-full min-w-0 px-2 py-6">
+		<style jsx global>{`
+			#nori-content .katex-display {
+				overflow-x: auto;
+				overflow-y: hidden;
+				max-width: 100%;
+				padding-bottom: 0.25rem;
+			}
+
+			#nori-content .katex-display > .katex {
+				white-space: nowrap;
+			}
+		`}</style>
 		<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
 			<ReactMarkdown
 				remarkPlugins={markdownPlugins}
