@@ -9,6 +9,19 @@ interface HeaderProps {
   setTheme: any;
   scrolled: any;
 }
+
+const ThemeIcon = ({ mounted, resolvedTheme }: {mounted: any; resolvedTheme: any}): JSX.Element => {
+  if (!mounted) {
+    return <Sun size={22} aria-label="Theme" />;
+  }
+
+  return resolvedTheme === "light" ? (
+    <Moon size={22} aria-label="Moon" />
+  ) : (
+    <Sun size={22} aria-label="Sun" />
+  );
+};
+
 const Header = ({
   mounted,
   resolvedTheme,
@@ -32,7 +45,6 @@ const Header = ({
         <nav className="flex items-center justify-between pr-4">
           <NavLink title="About" href="/#about" />
           <NavLink title="Work" href="/#work" />
-          <NavLink title="Blog" href="/blog" />
           <NavLink title="Misc" href="/misc" />
 
           <button
@@ -45,11 +57,7 @@ const Header = ({
             }}
           >
             <abbr title="Switch theme">
-              {resolvedTheme === "light" ? (
-                <Moon size={22} aria-label="Moon" />
-              ) : (
-                <Sun size={22} aria-label="Sun" />
-              )}
+              <ThemeIcon mounted={mounted} resolvedTheme={resolvedTheme}/>
             </abbr>
           </button>
         </nav>

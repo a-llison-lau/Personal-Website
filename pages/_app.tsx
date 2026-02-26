@@ -1,16 +1,15 @@
 import {AppProps} from 'next/app';
 import Head from 'next/head';
-import {ThemeProvider, useTheme} from 'next-themes';
+import {ThemeProvider} from 'next-themes';
 
 import Layout from '../components/Layout';
 import personalInfo from '../components/data/personalInfo.json';
 import GoogleTag from '../components/GoogleTag';
 
 import 'tailwindcss/tailwind.css';
+import 'katex/dist/katex.min.css';
 
 const App = ({Component, pageProps}: Readonly<AppProps>): JSX.Element => {
-	const {resolvedTheme} = useTheme();
-
 	return (
 		<ThemeProvider attribute="class">
 			<GoogleTag/>

@@ -16,5 +16,8 @@ module.exports = {
 		extend: {
 			filter: ['hover'],
 		},
-	}
+	},
+	plugins: [
+		require('@tailwindcss/typography')
+	]
 }

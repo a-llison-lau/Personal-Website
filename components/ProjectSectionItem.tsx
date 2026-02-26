@@ -1,4 +1,5 @@
 import ExtLink from './ExtLink';
+import Link from 'next/link';
 
 interface Props {
     project: {
@@ -13,6 +14,9 @@ interface Props {
 }
 
 const ProjectSectionItem = ({ project }: Props): JSX.Element => {
+    const projectLink = project["project link"];
+    const isInternalProjectLink = Boolean(projectLink?.startsWith('/'));
+
     return (
         <div className="mt-4 mb-8 flex items-start">
             {/* Picture Section (Hidden on mobile, 30% width on larger screens) - LEFT SIDE */}
@@ -41,10 +45,18 @@ const ProjectSectionItem = ({ project }: Props): JSX.Element => {
                                 [github]&nbsp;
                             </ExtLink>
                         )}
-                        {project["project link"] && (
-                            <ExtLink href={project["project link"]}>
-                                [blog]&nbsp;
-                            </ExtLink>
+                        {projectLink && (
+                            isInternalProjectLink ? (
+                                <Link
+                                    href={projectLink}
+                                    className="border-b-[1px] border-gray-600 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm">
+                                    [blog]&nbsp;
+                                </Link>
+                            ) : (
+                                <ExtLink href={projectLink}>
+                                    [blog]&nbsp;
+                                </ExtLink>
+                            )
                         )}
                     </p>
                 )}

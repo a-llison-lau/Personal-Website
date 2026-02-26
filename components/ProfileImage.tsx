@@ -4,7 +4,7 @@ const ProfileImage = (): JSX.Element => {
   return (
     <Image
       className="rounded-full select-none transition-all pointer-events-none"
-      src="/images/me_6.jpeg"
+      src="/images/me_7.jpeg"
       // onMouseOver = {e => e.currentTarget.src = "/images/gelo.HEIC"}
       // onMouseOut = {e => e.currentTarget.src = "/images/me.jpg"}
       draggable={false}
