@@ -438,6 +438,17 @@ const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMa
 			#nori-content .katex-display > .katex {
 				white-space: nowrap;
 			}
+
+			#nori-content h1 code,
+			#nori-content h2 code,
+			#nori-content h3 code,
+			#nori-content h4 code,
+			#nori-content h5 code,
+			#nori-content h6 code {
+				white-space: normal;
+				overflow-wrap: anywhere;
+				word-break: break-word;
+			}
 		`}</style>
 		<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
 			<ReactMarkdown
