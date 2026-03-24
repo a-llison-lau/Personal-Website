@@ -1,5 +1,23 @@
 [
 	{
+		"id": 4,
+		"author": "Rui Zhou*, Xander Yap*, Jianwen Cao, Allison Lau, Boyang Sun, Marc Pollefeys",
+		"title": "Memory Over Maps: 3D Object Localization Without Reconstruction",
+		"conference": "IROS 2026 (Under Review)",
+		"abstract": "We present a map-free approach to object localization that stores only posed RGB-D keyframes as visual memory instead of building dense 3D reconstructions. At query time, the system retrieves candidate views, applies vision-language filtering, and fuses sparse 3D estimates via depth backprojection.",
+		"links": [
+			{
+				"name": "pdf",
+				"url": "https://arxiv.org/abs/2603.20530"
+			},
+			{
+				"name": "project",
+				"url": "https://ruizhou-cn.github.io/memory-over-maps/"
+			}
+		],
+		"picture": "/images/work/iros.png"
+	},
+	{
 		"id": 3,
 		"author": "Allison Lau, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan",
 		"title": "Personalized Adaptation via In-Context Preference Learning",
