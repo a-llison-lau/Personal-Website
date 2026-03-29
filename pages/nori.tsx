@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {GetStaticProps, InferGetStaticPropsType, NextPage} from 'next';
-import {ReactNode, useMemo, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useState} from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
@@ -12,6 +12,7 @@ import remarkMath from 'remark-math';
 type TocItem = {
 	id: string;
 	title: string;
+	comingSoon: boolean;
 	features: Array<{
 		id: string;
 		title: string;
@@ -73,19 +74,13 @@ const removeUnsupportedAssets = (line: string): boolean => {
 		|| trimmed.startsWith('<!--');
 };
 
-const buildNoriContent = (rawContent: string): {
+const buildNoriContent = (indexContent: string, subPageContents: string[]): {
 	introMarkdown: string;
 	bodyMarkdown: string;
 	toc: TocItem[];
 } => {
-	const lines = rawContent.split(/\r?\n/);
-	let firstContentLineSeen = false;
-	let inDetailsBlock = false;
-	const toc: TocItem[] = [];
-	const allProcessedLines: string[] = [];
 	const slugCounts = new Map<string, number>();
-	let currentTopLevel: TocItem | null = null;
-	let splitIndex = -1;
+	const toc: TocItem[] = [];
 
 	const makeId = (title: string): string => {
 		const base = slugify(title) || 'section';
@@ -94,65 +89,125 @@ const buildNoriContent = (rawContent: string): {
 		return count === 0 ? base : `${base}-${count + 1}`;
 	};
 
-	for (const rawLine of lines) {
+	// --- Parse index.html for intro and TOC ---
+	const indexLines = indexContent.split(/\r?\n/);
+	const introLines: string[] = [];
+	let phase: 'intro' | 'toc' = 'intro';
+	let firstContentLineSeen = false;
+	let currentTopLevel: TocItem | null = null;
+
+	for (const rawLine of indexLines) {
 		if (removeUnsupportedAssets(rawLine)) {
 			continue;
 		}
 
 		let line = fixLatexTextttUnderscore(transformImagePaths(rawLine));
-		const trimmedLine = cleanLine(line);
-		if (trimmedLine.startsWith('<details')) {
-			inDetailsBlock = true;
-		}
-		if (inDetailsBlock && line.startsWith('    ')) {
-			line = line.slice(4);
-		}
-		if (trimmedLine === '</details>') {
-			inDetailsBlock = false;
-		}
-		if (!firstContentLineSeen && cleanLine(line)) {
+		const trimmed = cleanLine(line);
+
+		if (!firstContentLineSeen && trimmed) {
 			firstContentLineSeen = true;
-			const titleMatch = line.match(/^\*\*(.+)\*\*$/);
+			const titleMatch = trimmed.match(/^\*\*(.+)\*\*$/);
 			if (titleMatch) {
 				line = `# ${titleMatch[1].trim()}`;
 			}
 		}
-		const heading = line.match(/^(#{1,6})\s+(.+)$/);
-		if (!heading) {
-			allProcessedLines.push(line);
+
+		if (trimmed === '# Table of Contents') {
+			phase = 'toc';
 			continue;
 		}
 
-		const level = heading[1].length;
-		const title = heading[2].trim();
-		const id = makeId(title);
-
-		if (level === 1 && title.startsWith('Features --') && splitIndex < 0) {
-			splitIndex = allProcessedLines.length;
+		if (phase === 'intro') {
+			introLines.push(line);
+			continue;
 		}
 
-		if (level === 1 && title !== 'Introduction') {
-			currentTopLevel = {id, title, features: []};
+		// In TOC phase: parse ## headings and - items
+		const h2Match = trimmed.match(/^##\s+(.+)$/);
+		if (h2Match) {
+			const rawTitle = h2Match[1];
+			const linkMatch = rawTitle.match(/^\[(.+)\]\(.+\)$/);
+			const title = linkMatch ? linkMatch[1] : rawTitle;
+			const comingSoon = !linkMatch;
+			const id = makeId(title);
+			currentTopLevel = {id, title, comingSoon, features: []};
 			toc.push(currentTopLevel);
+			continue;
 		}
 
-		if (level === 2 && currentTopLevel) {
-			currentTopLevel.features.push({id, title});
+		const itemMatch = trimmed.match(/^-\s+(.+)$/);
+		if (itemMatch && currentTopLevel && !currentTopLevel.comingSoon) {
+			const featureTitle = itemMatch[1];
+			const featureId = makeId(featureTitle);
+			currentTopLevel.features.push({id: featureId, title: featureTitle});
 		}
-
-		allProcessedLines.push(line);
 	}
 
-	const contentStart = splitIndex >= 0 ? splitIndex : 0;
-	const introMarkdown = allProcessedLines.slice(0, contentStart).join('\n');
-	const bodyMarkdown = allProcessedLines.slice(contentStart).join('\n');
-	return {introMarkdown, bodyMarkdown, toc};
+	// --- Process sub-pages ---
+	const bodyLines: string[] = [];
+
+	for (const subContent of subPageContents) {
+		const lines = subContent.split(/\r?\n/);
+		let subFirstContentSeen = false;
+		let inDetailsBlock = false;
+
+		for (const rawLine of lines) {
+			if (removeUnsupportedAssets(rawLine)) {
+				continue;
+			}
+
+			let line = fixLatexTextttUnderscore(transformImagePaths(rawLine));
+			const trimmed = cleanLine(line);
+
+			// Skip [Back to Index](index.html)
+			if (trimmed.match(/^\[Back to Index\]/)) {
+				continue;
+			}
+
+			// Skip **Nori** or **Nori Maki** title
+			if (!subFirstContentSeen && trimmed) {
+				subFirstContentSeen = true;
+				if (trimmed.match(/^\*\*(Nori|Nori Maki)\*\*$/)) {
+					continue;
+				}
+			}
+
+			// Handle details blocks
+			if (trimmed.startsWith('<details')) {
+				inDetailsBlock = true;
+			}
+
+			if (inDetailsBlock && line.startsWith('    ')) {
+				line = line.slice(4);
+			}
+
+			if (trimmed === '</details>') {
+				inDetailsBlock = false;
+			}
+
+			bodyLines.push(line);
+		}
+
+		bodyLines.push('');
+	}
+
+	return {
+		introMarkdown: introLines.join('\n'),
+		bodyMarkdown: bodyLines.join('\n'),
+		toc
+	};
 };
 
+const subPageFiles = ['emitters.html', 'textures.html', 'light-transport.html', 'participating-media.html'];
+
 export const getStaticProps: GetStaticProps<NoriProps> = async () => {
-	const sourcePath = path.join(process.cwd(), 'public', 'project', 'index.html');
-	const rawContent = fs.readFileSync(sourcePath, 'utf8');
-	const {introMarkdown, bodyMarkdown, toc} = buildNoriContent(rawContent);
+	const projectDir = path.join(process.cwd(), 'public', 'project');
+	const indexContent = fs.readFileSync(path.join(projectDir, 'index.html'), 'utf8');
+	const subPageContents = subPageFiles.map(file =>
+		fs.readFileSync(path.join(projectDir, file), 'utf8')
+	);
+
+	const {introMarkdown, bodyMarkdown, toc} = buildNoriContent(indexContent, subPageContents);
 
 	return {
 		props: {
@@ -425,69 +480,190 @@ const markdownComponents = {
 	}
 };
 
-const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMarkdown, bodyMarkdown, toc}) => (
-	<div id="nori-content" className="w-full min-w-0 px-2 py-6">
-		<style jsx global>{`
-			#nori-content .katex-display {
-				overflow-x: auto;
-				overflow-y: hidden;
-				max-width: 100%;
-				padding-bottom: 0.25rem;
+const SidebarToc = ({toc, activeId}: {toc: TocItem[]; activeId: string}): JSX.Element => {
+	// Collect all feature IDs that belong to each section for parent highlighting
+	const activeSectionId = useMemo(() => {
+		for (const section of toc) {
+			if (activeId === section.id) {
+				return section.id;
 			}
 
-			#nori-content .katex-display > .katex {
-				white-space: nowrap;
+			for (const feature of section.features) {
+				if (activeId === feature.id) {
+					return section.id;
+				}
 			}
+		}
 
-			#nori-content h1 code,
-			#nori-content h2 code,
-			#nori-content h3 code,
-			#nori-content h4 code,
-			#nori-content h5 code,
-			#nori-content h6 code {
-				white-space: normal;
-				overflow-wrap: anywhere;
-				word-break: break-word;
-			}
-		`}</style>
-		<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
-			<ReactMarkdown
-				remarkPlugins={markdownPlugins}
-				rehypePlugins={rehypePlugins}
-				components={markdownComponents}>
-				{introMarkdown}
-			</ReactMarkdown>
-		</div>
+		return '';
+	}, [toc, activeId]);
 
-		<section id="table-of-contents" className="mt-8 mb-10">
-			<h2 className="text-2xl font-bold mb-4">Table of Contents</h2>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+	return (
+		<nav
+			className="hidden xl:block fixed top-28 w-52 max-h-[calc(100vh-8rem)] overflow-y-auto text-sm pr-2"
+			style={{left: 'calc(50% - 448px - 14.5rem)'}}>
+			<h3 className="font-bold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+				Contents
+			</h3>
+			<ul className="space-y-2 border-l border-gray-200 dark:border-gray-700">
 				{toc.map(section => (
-					<div key={section.id} className="rounded p-3">
-						<a href={`#${section.id}`} className="font-semibold hover:underline block mb-2 border-b border-gray-600 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm w-fit">
-							{section.title}
-						</a>
-						<div className="space-y-1">
-							{section.features.map(feature => (
-								<a key={feature.id} href={`#${feature.id}`} className="block text-sm hover:underline border-b border-gray-600 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm w-fit">
-									{feature.title}
+					<li key={section.id}>
+						{section.comingSoon ? (
+							<span className="block pl-3 py-1 text-gray-400 dark:text-gray-600 cursor-default text-xs">
+								{section.title.replace('Features -- ', '')}
+								<span className="italic ml-1">soon</span>
+							</span>
+						) : (
+							<>
+								<a
+									href={`#${section.id}`}
+									className={`block pl-3 py-1 border-l-2 -ml-px transition-colors no-underline
+										${activeId === section.id || activeSectionId === section.id
+		? 'border-amber-500 text-amber-600 dark:text-amber-400 font-medium'
+		: 'border-transparent hover:border-gray-400 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+	}`}>
+									{section.title.replace('Features -- ', '')}
 								</a>
-							))}
-						</div>
-					</div>
+								<ul className="space-y-0.5 mt-1">
+									{section.features.map(feature => (
+										<li key={feature.id}>
+											<a
+												href={`#${feature.id}`}
+												className={`block pl-6 py-0.5 border-l-2 -ml-px transition-colors text-xs no-underline
+													${activeId === feature.id
+		? 'border-amber-500 text-amber-600 dark:text-amber-400 font-medium'
+		: 'border-transparent hover:border-gray-300 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+	}`}>
+												{feature.title}
+											</a>
+										</li>
+									))}
+								</ul>
+							</>
+						)}
+					</li>
 				))}
-			</div>
-		</section>
+			</ul>
+		</nav>
+	);
+};
 
-		<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
-			<ReactMarkdown
-				remarkPlugins={markdownPlugins}
-				rehypePlugins={rehypePlugins}
-				components={markdownComponents}>
-				{bodyMarkdown}
-			</ReactMarkdown>
+const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMarkdown, bodyMarkdown, toc}) => {
+	const [activeId, setActiveId] = useState('');
+
+	useEffect(() => {
+		const headingElements = Array.from(
+			document.querySelectorAll('#nori-content h1[id], #nori-content h2[id]')
+		) as HTMLElement[];
+
+		const handleScroll = (): void => {
+			const scrollTop = window.scrollY + 100;
+			let currentId = '';
+
+			for (const heading of headingElements) {
+				if (heading.offsetTop <= scrollTop) {
+					currentId = heading.id;
+				}
+			}
+
+			setActiveId(currentId);
+		};
+
+		let ticking = false;
+		const onScroll = (): void => {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					handleScroll();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		};
+
+		window.addEventListener('scroll', onScroll, {passive: true});
+		handleScroll();
+
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+		};
+	}, []);
+
+	return (
+		<div id="nori-content" className="w-full min-w-0 px-2 py-6">
+			<style jsx global>{`
+				#nori-content .katex-display {
+					overflow-x: auto;
+					overflow-y: hidden;
+					max-width: 100%;
+					padding-bottom: 0.25rem;
+				}
+
+				#nori-content .katex-display > .katex {
+					white-space: nowrap;
+				}
+
+				#nori-content h1 code,
+				#nori-content h2 code,
+				#nori-content h3 code,
+				#nori-content h4 code,
+				#nori-content h5 code,
+				#nori-content h6 code {
+					white-space: normal;
+					overflow-wrap: anywhere;
+					word-break: break-word;
+				}
+			`}</style>
+
+			<SidebarToc toc={toc} activeId={activeId}/>
+
+			<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
+				<ReactMarkdown
+					remarkPlugins={markdownPlugins}
+					rehypePlugins={rehypePlugins}
+					components={markdownComponents}>
+					{introMarkdown}
+				</ReactMarkdown>
+			</div>
+
+			<section id="table-of-contents" className="mt-8 mb-10 xl:hidden">
+				<h2 className="text-2xl font-bold mb-4">Table of Contents</h2>
+				<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+					{toc.map(section => (
+						<div key={section.id} className="rounded p-3">
+							{section.comingSoon ? (
+								<span className="font-semibold block mb-2 text-gray-400 dark:text-gray-600">
+									{section.title}
+									<span className="text-sm italic ml-1">soon</span>
+								</span>
+							) : (
+								<>
+									<a href={`#${section.id}`} className="font-semibold hover:underline block mb-2 border-b border-gray-600 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm w-fit">
+										{section.title}
+									</a>
+									<div className="space-y-1">
+										{section.features.map(feature => (
+											<a key={feature.id} href={`#${feature.id}`} className="block text-sm hover:underline border-b border-gray-600 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm w-fit">
+												{feature.title}
+											</a>
+										))}
+									</div>
+								</>
+							)}
+						</div>
+					))}
+				</div>
+			</section>
+
+			<div suppressHydrationWarning className="prose max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h4:font-semibold prose-a:border-b prose-a:border-gray-600 prose-a:transition prose-a:rounded-t-sm prose-a:hover:bg-amber-200 dark:prose-a:hover:bg-gray-600">
+				<ReactMarkdown
+					remarkPlugins={markdownPlugins}
+					rehypePlugins={rehypePlugins}
+					components={markdownComponents}>
+					{bodyMarkdown}
+				</ReactMarkdown>
+			</div>
 		</div>
-	</div>
-);
+	);
+};
 
 export default Nori;

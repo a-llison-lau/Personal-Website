@@ -1,0 +1,262 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+[Back to Index](index.html)
+
+**Nori**
+
+# Features -- Light Transport Algorithms
+
+## Final Gather for Photon Mapping
+
+Final Gather for Photon Mapping refines global illumination by gathering photon data to compute indirect light.
+
+In standard photon mapping, we estimate irradiance by averaging photons within a radius $r$. This is inherently biased because we are averaging over an area, not evaluating at a point. Sharp features get smeared. The larger the radius, the more blur, and the smaller the radius, the more noise. Final gather hides the bias behind an integration.
+
+### Description
+
+**Files created or modified**:
+- `src/photonmapper.cpp`
+
+**Validation scenes**:
+- `scenes/nori-beyond/final_gather/cbox_0.xml`
+- `scenes/nori-beyond/final_gather/cbox_64_10M.xml`
+
+The basic photon mapping logic has two phases: preprocessing and rendering. The preprocessing phase follows the steps:
+
+1. Emit photons from light sources until the desired number of photons stored in map `num_photons` reaches the target number of photons `m_photonCount`. Randomly select an emitter, sample a photon ray and power using `samplePhoton()`.
+2. Trace photons through the scene :
+    - When a photon hits a diffuse surface, store it in the photon map (position, incident direction, power)
+    - Use Russian roulette for path termination
+    - Sample BSDF to bounce the photon, attenuating its power by $f_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{i}, \boldsymbol{\omega}_\text{r}) \cos \theta_\text{i} / p(\boldsymbol{\omega}_i)$
+    - Account for radiance scaling when passing through dielectric surfaces with $\eta^2$ scaling
+3. Build KD-tree for efficient photon lookups
+
+The rendering phase follows the steps:
+
+1. Trace camera rays through the scene
+2. If the ray hits an emitter, add emitted radiance $L_\text{e}$.
+3. At the first diffuse surface hit,
+    - Search photon map within `m_photonRadius`
+    - For each found photon $i$, evaluate BSDF (with the current ray direction $\boldsymbol{\omega}_\text{o}$ and the photon direction $\boldsymbol{\omega}_\text{i}$) and accumulate $L_\text{r}$ with $f_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{i}, \boldsymbol{\omega}_\text{o}) \Phi_i$.
+    - Get density estimation $L_\text{r} \leftarrow L_\text{r} / (\pi r^2 M)$ where $M$ is the number of emitted photons.
+    - Aggregate $L_\text{i}$ by $L_\text{r}$ multiplied by the current throughput
+4. Use Russian roulette for path termination
+5. At specular surfaces, continue tracing via BSDF sampling.
+
+#### `PhotonMapper::Li()`
+
+Instead of looking up photons at the point of query $\mathbf{x}$, we do one extra bounce. We sample `m_numGatherRays` gather rays from $\mathbf{x}$ with its BSDF. We trace each gather ray through the scene with max `maxSpecularBounces` specular bounces. At the first diffuse hit, we perform the photon lookup and density estimation. The radiance $\mathbf{x}$, $L_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{o})$ from final gather is then given by
+
+$$
+L_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{o}) = \frac{1}{\texttt{m_numGatherRays}}\sum_{k = 1}^\texttt{m_numGatherRays} f_\text{r}(\mathbf{x}, \boldsymbol{\omega}_{\text{i}, k}, \boldsymbol{\omega}_\text{o})L_\text{i}(r(\mathbf{x}, \boldsymbol{\omega}_{\text{i}, k}), -\boldsymbol{\omega}_{\text{i}, k})
+$$
+
+A caveat about final gather is that we need to explicitly compute direct lighting with a shadow ray test. Consider direct photon density estimation: Without final gather, photons from the light hits surfaces and get stored. A sphere blocks photons from reaching the floor behind it. Fewer photons are then stored in that shadowed region, causing it to be darker and creating shadows. With final gather, gather rays are shot from the shading point in all directions, where we look up photons. Even if the shading point is in shadow, the gather ray can reach lit surfaces, causing the shadow to disappear. Hence the radiance at $\mathbf{x}$, $L_\text{i}(\mathbf{x}, \boldsymbol{\omega}_\text{o})$ is given by $L_\text{i}(\mathbf{x}, \boldsymbol{\omega}_\text{o}) = L_\text{e} + qL_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{o})$ where $q$ is the throughput.
+
+The current code now takes in an argument `numGatherRays` as follows:
+
+```
+<integrator type="photonmapper">
+		<float name="photonRadius" value="0.05"/>
+		<integer name="photonCount" value="10000000"/>
+        <float name="numGatherRays" value="64"/>
+</integrator>
+```
+
+If `numGatherRays` is unspecified, it is automatically set to 0, and the behaviour is the same as original version of photon mapping.
+
+### Validation
+
+It can be observed that the caustic effect gets diluted or lost. This is because caustic photons (light paths like $LS+D$) are stored in the global photon map. Without final gather, we query photons directly at the shading point, and caustics are visible. With final gather, the gather rays sample the BSDF and do photon lookups at the endpoints of those rays. However, caustics are highly localized and the probability that a random gather ray lands exactly in a caustic region is very low, and thus most gather rays missthe caustic entirely. So the caustic effect gets diluted.
+
+<div class="twentytwenty-container">
+    <img src="final-gather/cbox_0.png" alt="Photon Mapping Original Version" class="img-responsive">
+    <img src="final-gather/cbox_64_10M.png" alt="Photon Mapping Final Gather (64 Gather Rays)">
+    <img src="final-gather/cbox_path_mis.png" alt="Path Tracing (MIS)" class="img-responsive">
+</div>
+
+## Dedicated Caustics Photon Map
+
+A dedicated caustics map separates photons into two categories: Global photon map and caustics photon map. The caustics photon map stores photons that passed through at least one specular surface before hitting a diffuse surface.
+
+### Description
+
+**Files created or modified**:
+- `src/photonmapper.cpp`
+
+**Validation scenes**:
+- `scenes/nori-beyond/caustics_map/cbox_64_10M.xml`
+
+New member variables `m_causticPhotonCount`, `m_causticRadius`, `m_emittedCausticPhotons` have been added. In general, typical photon radius in the caustics map is smaller than that in the global map, and fewer photons are needed.
+
+#### `PhotonMapper::preprocess()`
+
+The preprocessing phase now needs to build two photon maps. `photonCount` photons are to be stored in the global photon map and stored at diffuse surfaces. If caustics photon map is enabled, the photons are stored *only* if they did not just hit a specular surface one bounce ago. Otherwise if caustics photon map is disabled, they are stored at every diffuse hit. `causticPhotonCount` photons are to be stored in the caustics photon map. We track a flag `hasHitSpecular`, initialized as false, as the photon bounces in the scene. Once the photon has hit a specular surface, the flag is set to `true`. In the next diffuse hit, the photon is stored in the caustics map and we stop tracing this photon.
+
+#### `PhotonMapper::Li()`
+
+At a diffuse surface, we estimate the photon density from the caustics map *without* final gather and obtain $L_\text{caustic}$. We also estimate the photon density with the global photon map with or without final gather (depending on user specification) and obtain $L_\text{global}$. We then aggregate the two radiances.
+
+The current code now takes in an argument `causticPhotonCount` and `causticRadius` as follows:
+
+```
+<integrator type="photonmapper">
+    <!-- Global photon map for indirect illumination -->
+    <integer name="photonCount" value="10000000"/>
+    <float name="photonRadius" value="0.05"/>
+    <integer name="numGatherRays" value="64"/>
+
+    <!-- Caustics photon map for sharp caustics -->
+    <integer name="causticPhotonCount" value="2000000"/>
+    <float name="causticRadius" value="0.02"/>
+</integrator>
+```
+
+If `causticPhotonCount` or `causticRadius` are unspecified, they are automatically set to 0, and the behaviour is the same as original version of photon mapping.
+
+### Validation
+
+<div class="twentytwenty-container">
+    <img src="final-gather/cbox_0.png" alt="Photon Mapping Original Version" class="img-responsive">
+    <img src="final-gather/cbox_64_10M.png" alt="Photon Mapping Final Gather (64 Gather Rays)">
+    <img src="final-gather/cbox_path_mis.png" alt="Path Tracing (MIS)" class="img-responsive">
+    <img src="caustics-map/cbox_64_10M.png" alt="Photon Mapping Final Gather (64 Gather Rays) with Caustics Map">
+</div>
+
+## Resampled Importance Sampling
+
+Resampled Importance Sampling (RIS) focuses computation on areas of higher light contribution.
+
+In the current path tracing with multiple importance sampling (MIS), we sample one light uniformly from the light set, and one BSDF direction, and combine the two with MIS weights. This works well, but uniform light selection is bad when many lights exist, and one light sample per bounce is often noisy. In RIS, we generate $M$ candidate lights, assign each a weight, and resample one candidate. When $M = 1$, RIS reduces to standard emitter sampling.
+
+### Description
+
+**Files created or modified**:
+- `src/path_ris.cpp`
+
+**Validation scenes**:
+- `scenes/nori-beyond/path_ris/sponza.xml`
+
+The general RIS framework from [Talbot et al.](https://diglib.eg.org/handle/10.2312/EGWR.EGSR05.139-146) estimates an integral $I = \int_\Omega f(x) \, d\mu(x)$ using two PDFs:
+- Source PDF $p(x)$: easy to sample from (the proposal distribution)
+- Target PDF $g(x)$: closer to $f(x)$, possibly unnormalized or difficult to sample directly
+
+The RIS procedure is:
+1. Draw $M$ candidate samples $X_1, \ldots, X_M \sim p(x)$
+2. Compute resampling weights $w_j = \frac{g(X_j)}{p(X_j)}$
+3. Resample one candidate $Y$ from $\{X_j\}$ with probability $P(Y = X_j) = \frac{w_j}{\sum_k w_k}$
+4. The unbiased RIS estimator is:
+$$
+\hat{I}_\text{RIS} = \underbrace{\frac{f(Y)}{g(Y)}}_\text{evaluated at resampled $Y$} \cdot \frac{1}{M} \sum_{j=1}^M w_j
+$$
+When $M = 1$, RIS reduces to standard importance sampling with PDF $p$.
+
+Our implementation uses a simplified parameterization where we set $g = f$ (the target equals the integrand). This is a valid special case of RIS.
+
+For direct lighting at shading point $\mathbf{x}$, the integrand is:
+$$
+f(\mathbf{y}) = f_\text{r}(\mathbf{x}, \boldsymbol{\omega}_\text{i}, \boldsymbol{\omega}_\text{o}) \, L_\text{e}(\mathbf{y}, -\boldsymbol{\omega}_\text{i}) \, \cos\theta_\text{i} \, G(\mathbf{x}, \mathbf{y}) \, V(\mathbf{x}, \mathbf{y})
+$$
+where $\mathbf{y}$ is a point on a light source, $\boldsymbol{\omega}_\text{i} = \frac{\mathbf{y} - \mathbf{x}}{\|\mathbf{y} - \mathbf{x}\|}$, $G$ is the geometry term, and $V$ is visibility.
+
+Our source (proposal) PDF is uniform light selection combined with area sampling on each light:
+$$
+p(\mathbf{y}) = \frac{1}{N_\text{lights}} \cdot p_A(\mathbf{y} \mid l)
+$$
+with $p_A(\mathbf{y} \mid l) =  \frac{\cos\theta_\text{o}}{\|\mathbf{x} - \mathbf{y}\|^2} p_\Omega(\boldsymbol{\omega}_\text{i})$.
+
+#### `PathRISIntegrator::Li()`
+
+At shading point $\mathbf{x}$:
+
+1. Sample $M$ candidates. For $i = 1, \ldots, M$, sample light $l_i$ uniformly such that $p(l_i) = \frac{1}{N_\text{lights}}$, and sample point $\mathbf{y}^i$ on light $l_i$: $\mathbf{y}^i \sim p_A(\mathbf{y} \mid l_i)$
+
+2. For each candidate, compute the contribution (ignoring visibility for now):
+$$
+c_i = \frac{f_\text{r} \, L_\text{e} \, \cos\theta_\text{i}}{p_\Omega(\boldsymbol{\omega}_\text{i})}
+$$
+Note that $c_i$ is the integrand $f$ divided by the solid angle PDF only (not the full proposal PDF). The $\frac{1}{N_\text{lights}}$ factor is handled separately. Also compute the scalar resampling weight $w_i = \text{luminance}(c_i)$.
+
+3. Select candidate $k$ with probability $P(k) = \frac{w_k}{\sum_{j=1}^M w_j}$
+
+4. If the selected candidate passes the visibility test, compute the final estimate. When $g = f$ (our case), $\frac{f(Y)}{g(Y)} = 1$, so the estimator simplifies to $\frac{1}{M}\sum_j w_j$. However, computing the full sum requires evaluating all $M$ candidates. In practice, we select candidate $k$ with probability $P(k) = \frac{w_k}{\sum w_j}$, then output $\frac{1}{P(k)} \cdot \frac{1}{M} \cdot \frac{f(X_k)}{g(X_k)}$. By importance sampling, this has the same expectation as the full sum but only requires evaluating one candidate (e.g., one visibility test instead of $M$). Using the this single-sample RIS variant with $g = f$, the estimator is:
+$$
+\frac{1}{P(k)} \cdot \frac{1}{M} \cdot \underbrace{\frac{f(X_k)}{g(X_k)}}_{= 1 \text{ since } g = f} = \frac{\sum w_j}{w_k} \cdot \frac{1}{M}
+$$
+
+But this assumes $w_j = \frac{f(X_j)}{p(X_j)}$ with the full proposal PDF $p = \frac{p_\Omega}{N_\text{lights}}$. In our implementation, we instead use $w_j = \text{luminance}(c_j)$ where $c_j = \frac{f_j}{p_\Omega}$ (missing the $N_\text{lights}$ factor). To correct for this, we multiply by $c_k \cdot N_\text{lights}$:
+$$
+\hat{L}_\text{RIS} = \frac{1}{M} \cdot \frac{\sum_{j=1}^M w_j}{w_k} \cdot \underbrace{c_k \cdot N_\text{lights}}_{= f_k / p(X_k)}
+$$
+
+The term $c_k \cdot N_\text{lights} = \frac{f_k}{p_\Omega} \cdot N_\text{lights} = \frac{f_k}{p_\Omega / N_\text{lights}} = \frac{f_k}{p(X_k)}$ gives us the correct importance sampling ratio for the full proposal PDF.
+
+When $M = 1$, $\frac{\sum w_j}{w_k} = 1$, recovering standard emitter sampling: $\hat{L} = c_1 \cdot N_\text{lights} = \frac{f}{p}$.
+
+For the emitter sampling branch (RIS), we apply a MIS weight:
+$$
+w_\text{em} = \frac{p_\text{em}}{p_\text{em} + p_\text{mat}}
+$$
+where $p_\text{em} = \frac{p_\Omega(\boldsymbol{\omega}_\text{i})}{N_\text{lights}}$ is the full emitter sampling PDF (solid angle PDF divided by number of lights) and $p_\text{mat}$ is the BSDF sampling PDF. The final RIS contribution becomes:
+$$
+\hat{L}_\text{RIS} = w_\text{em} \cdot \frac{1}{M} \cdot \frac{\sum w_j}{w_k} \cdot c_k \cdot N_\text{lights}
+$$
+
+For the BSDF sampling branch, when a BSDF-sampled direction hits an emitter, we apply the complementary MIS weight:
+$$
+w_\text{mat} = \frac{p_\text{mat}}{p_\text{em} + p_\text{mat}}
+$$
+and add:
+$$
+\hat{L}_\text{BSDF} = w_\text{mat} \cdot \frac{f_\text{r} \cos\theta}{p_\text{mat}} \cdot L_\text{e}
+$$
+For delta BSDFs (mirrors, glass), $p_\text{mat}$ is a Dirac delta and emitter sampling cannot find specular paths, so we use $w_\text{mat} = 1$ for BSDF-sampled paths through specular surfaces.
+
+### Validation
+
+This Sponza scene features multiple area lights distributed throughout the space, creating complex lighting conditions where uniform light selection becomes inefficient. Many shading points receive significant contribution from only a subset of the lights (e.g., nearby lights or those with unobstructed paths), while distant or occluded lights contribute little.
+
+<div class="twentytwenty-container">
+    <img src="path-ris/sponza_path_mis_64.png" alt="Path Tracing (MIS), 64 spp" class="img-responsive">
+    <img src="path-ris/sponza_path_ris_64.png" alt="Path Tracing (RIS), 64 spp">
+</div>
+
+RIS excels in this scenario by resampling candidates based on their actual contribution (BSDF $\times$ emission $\times$ geometry), effectively concentrating samples on the lights that matter most for each shading point. This leads to lower variance compared to MIS with uniform light selection at the same sample count.
+
+<div class="row" style="display: flex; flex-wrap: nowrap; margin-bottom: 20px;">
+    <div class="col-xs-6" style="flex: 1; padding: 4px;">
+        <div class="twentytwenty-container">
+            <img src="path-ris/sponza_path_mis_64_crop_1.png" alt="Path Tracing (MIS), 64 spp" class="img-responsive">
+            <img src="path-ris/sponza_path_ris_64_crop_1.png" alt="Path Tracing (RIS), 64 spp">
+        </div>
+    </div>
+    <div class="col-xs-6" style="flex: 1; padding: 4px;">
+        <div class="twentytwenty-container">
+            <img src="path-ris/sponza_path_mis_64_crop_2.png" alt="Path Tracing (MIS), 64 spp" class="img-responsive">
+            <img src="path-ris/sponza_path_ris_64_crop_2.png" alt="Path Tracing (RIS), 64 spp">
+        </div>
+    </div>
+        <div class="col-xs-6" style="flex: 1; padding: 4px;">
+        <div class="twentytwenty-container">
+            <img src="path-ris/sponza_path_mis_64_crop_3.png" alt="Path Tracing (MIS), 64 spp" class="img-responsive">
+            <img src="path-ris/sponza_path_ris_64_crop_3.png" alt="Path Tracing (RIS), 64 spp">
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core CSS and JavaScript -->
+
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="../resources/bootstrap.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+
+<!-- Markdeep: -->
+<script>var markdeepOptions = {onLoad: function() {$(".twentytwenty-container").twentytwenty({default_offset_pct: 0.5, move_slider_on_hover: true, placeholder: '../resources/nori.png'});},tocStyle:'none'};</script>
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

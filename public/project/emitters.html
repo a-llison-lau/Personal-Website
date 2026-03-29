@@ -1,0 +1,194 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+[Back to Index](index.html)
+
+**Nori Maki**
+
+# Features -- Emitters
+
+## Spot Light
+
+Spotlights emit light in a cone of directions from their position. This is discussed in [chapter 12.2.1 of the PBR book](https://www.pbr-book.org/4ed/Light_Sources/Point_Lights#Spotlights).
+
+### Description
+
+**Files created or modified**:
+- `src/spotlight.cpp`
+
+**Validation scenes**:
+- `scenes/nori-beyond/spotlight/cbox.xml`
+- `scenes/nori-beyond/spotlight/cbox_mitsuba.xml`
+
+A new emitter type `SpotLight` is implemented in the file `spotlight.cpp`.
+
+The origin of the light is at $(0, 0, 0)$, and points towards the $+z$ axis. A spot light is defined by two angles -- `falloffStart`, where everything inside this angle is fully illuminated (intensity multiplier = 1), and `totalWidth`, where illumination fades to black at this angle, and everything outside is dark (intensity multiplier = 0). To avoid expensive $\arccos$ operations, I store the the cosines of the angles `cosFalloffStart` and `cosTotalWidth`, and since $\cos \theta$ decreases as $\theta$ increases, $\cos \theta_\text{fall off start} > \cos \theta_\text{total width}$. To create a soft transition zone (penumbra) in the outer cone, I use the `SmoothStep` function, which is a cubic function (Hermite interpolation), that takes in $\cos \theta_\omega, \cos \theta_\text{total width}, \cos \theta_\text{fall off start}$, where $\cos \theta_\omega$ is the cosine angle between $+z$ and the vector with direction $\mathbf{\omega}$ pointing from the light origin to the point in scene:
+
+1. Compute $t = \frac{\cos \theta_\omega - \cos \theta_\text{total width}}{\cos \theta_\text{fall off start} - \cos \theta_\text{total width}}$ and $t = 0$ if $\cos \theta_\omega < \cos \theta_\text{total width}$ or $\cos \theta_\omega > \cos \theta_\text{fall off start}$.
+2. Return $t^2(3 - 2t)$ (Hermite interpolation)
+
+The angular intensity $I(\mathbf{\omega})$ is the radiant intensity in the direction $\mathbf{\omega}$ (power emitted per solid angle in direction $\mathbf{\omega}$), and is given by
+
+$$
+I(\mathbf{\omega}) = \underbrace{\text{scale} \times \text{spectrum}}_\text{Peak intensity in the forward direction before angular attenuation} \times \underbrace{\text{SmoothStep}(\cos \theta_\omega, \cos \theta_\text{total width}, \cos \theta_\text{fall off start})}_\text{Scalar in $[0, 1]$ depending on $\theta_\omega$}
+$$
+
+A surface patch $\mathrm{d}A$ at point $\mathbf{p}$ subtends a small solid angle $\mathrm{d}\mathbf{\omega}$ around direction $\mathbf{\omega}$, with the relation $\mathrm{d}\mathbf{\omega} = \frac{\cos \theta}{r^2}\mathrm{d}A$, where $\theta$ is the angle between the surface normal at $\mathbf{p}$ and direction from $\mathbf{p}$ to the light. The power arriving at $\mathrm{d}A$ from that infinitesimal solid angle is given by
+
+$$
+\mathrm{d}\Phi = I(\mathbf{\omega})\mathrm{d}\mathbf{\omega} = I(\mathbf{\omega})\frac{\cos \theta}{r^2}\mathrm{d}A
+$$
+
+The irradiance on the patch is $E = \frac{\mathrm{d}\Phi}{\mathrm{d}A} = \frac{I(\mathbf{\omega})\cos \theta}{r^2}$. The radiance $L$ is defined so that
+
+$$
+\begin{align*}
+\mathrm{d}\Phi &= L \cos \theta \mathrm{d}A\mathrm{d}\mathbf{\omega} \\
+L &= \frac{\mathrm{d}\Phi}{\cos \theta \mathrm{d}A\mathrm{d}\mathbf{\omega}} \\
+&= \frac{I(\mathbf{\omega})\mathrm{d}\mathbf{\omega}}{\cos \theta \mathrm{d}A\mathrm{d}\mathbf{\omega}} \\
+&= \frac{I(\mathbf{\omega})}{r^2}
+\end{align*}
+$$
+
+<details>
+  <summary>Derivation of flux (not used explicitly in this implementation because of the uniform sampling strategy)</summary>
+
+  A spherical cap (cone of half-angle $\theta$) has solid angle $\Omega(\theta) = 2\pi(1 - \cos \theta)$. Within the region of `falloffStart`, intensity is constant, so flux in that region is
+
+    $$
+    \Phi_\text{fall off start} = I_\text{fall off start}\Omega(\theta_\text{fall off start}) = 2\pi I_\text{fall off start}(1 - \cos \theta_\text{fall off start})
+    $$
+
+    Between `falloffStart` and `totalWidth`, the intensity decreases smoothly to 0. The PBR book approximates the integral by assuming that intensity in the region averages to half the peak value. The solid angle of the penumbra annulus is $\Omega_\text{penumbra} = 2\pi(\cos \theta_\text{fall off start} - \cos \theta_\text{total width})$. If the average intensity is $I_\text{fall off start} / 2$, then
+
+    $$
+    \Phi_\text{penumbra} \approx \frac{I_\text{fall off start}}{2}\Omega_\text{penumbra} = = 2\pi I_\text{fall off start}\frac{\cos \theta_\text{fall off start} - \cos \theta_\text{total width}}{2}
+    $$
+
+    Total flux is thus
+    $$
+    \Phi \approx \Phi_\text{fall off start} + \Phi_\text{penumbra} = 2\pi I_\text{fall off start}\left[(1 - \cos \theta_\text{fall off start}) + \frac{\cos \theta_\text{fall off start} - \cos \theta_\text{total width}}{2}\right]
+    $$
+</details>
+
+#### `SpotLight::eval(...)`
+
+Delta emitters have zero area so there is measure-zero probability of hitting them via BSDF sampling.
+
+#### `SpotLight::sample(...)`
+
+First assign the fields of the emitter query record `lRec` given the position of the light and the reference point $\mathbf{p}$. Then compute the angle attenuation term using $\text{SmoothStep}$ given the cosine of the angle between the `m_direction` (direction of spot light) and the vector pointing from the light to $\mathbf{p}$ (`lRec.ref`). Finally compute the intensity and return the radiance.
+
+#### `SpotLight::pdf(...)`
+
+Delta lights have zero measure, thus PDF = 0. This is required for MIS.
+
+#### `Spotlight::samplePhoton(...)`
+
+First sample a direction from the light using `squareToUniformSphereCap` and assign the sampled direction to `ray`. Then compute the angle attenuation term using $\text{SmoothStep}$ given the cosine of the angle between the `m_direction` (direction of spot light) and the sampled direction. Finally return the photon power, which is the intensity divided by the sampling PDF.
+
+### Validation
+
+I compared my implementation with Mitsuba with the Cornell box scene with two cubes, and a spot light positioned behind the right one, pointing towards the left one.
+
+I also updated `path_mis.cpp` to support delta lights (spotlights and point lights) by modifying the MIS weight calculation. For delta lights (detected by checking if `ems_lRec.n.isZero()`), I set the MIS weight to 1.0 since delta lights cannot be sampled by BSDF sampling (the probability of randomly hitting a point light via BSDF is zero). This ensures that only emitter sampling contributes when rendering scenes with delta lights, preventing the image from being incorrectly darkened by MIS weighting.
+
+**Comparison: Cornell Box with Spot Light**
+<div class="twentytwenty-container">
+    <img src="spotlight/cbox_direct_mitsuba.png" alt="Mitsuba Direct" class="img-responsive">
+    <img src="spotlight/cbox_direct.png" alt="Mine Direct" class="img-responsive">
+    <img src="spotlight/cbox_mitsuba.png" alt="Mitsuba Path" class="img-responsive">
+    <img src="spotlight/cbox.png" alt="Mine Path MIS" class="img-responsive">
+</div>
+
+There is a reasonable difference in rendered images. In my implementation, after computing $t$, I apply a Hermite interpolation (SmoothStep) following the [PBR book](https://www.pbr-book.org/4ed/Utilities/Mathematical_Infrastructure#SmoothStep), which creates an "S-curve" falloff. My spotlight hence stays brighter for longer near the center (the "shoulder" of the S-curve) and fade out more gradually near the absolute edge (the "toe" of the S-curve) compared to Mitsuba's sharp linear drop, which applies applies a [pure linear ram](https://github.com/mitsuba-renderer/mitsuba3/blob/master/src/emitters/spot.cpp#L142). Also, my interpolation domain is cosine where Mitsuba is the angle itself. I believe that the visual differences make sense based on these two implementation differences.
+
+## Directional Light
+
+Directional Light is also known as distant light, which desccribes an emitter that deposits illumination from the same direction at every point in space. This feature is discussed in [chapter 12.3 of the PBR book](https://pbr-book.org/4ed/Light_Sources/Distant_Lights).
+
+### Description
+
+**Files created or modified**:
+- `src/directionallight.cpp`
+
+**Validation scenes**:
+- `scenes/nori-beyond/directional_light/`
+
+A new emitter type `DirectionalLight` is implemented in the file `directionallight.cpp`.
+
+The radiance at a point $\mathbf{x}$ from direction $\boldsymbol{\omega}_\text{i}$ due to directional light with direction $\boldsymbol{\omega}_\ell$ is given by
+$$
+L_\text{i}(\mathbf{x}, \boldsymbol{\omega}_\text{i}) = L_\text{e}\delta(\boldsymbol{\omega}_\text{i} - \boldsymbol{\omega}_\ell)
+$$
+The physical reason that directional lights make sense is that for point lights, $L_\text{i} \propto \frac{1}{r^2}$ where $r$ is the distance from the point light. For directional lights, $r \to \infty$. However, the emitting area also grows as $r^2$. The two effects cancel.
+
+#### `DirectionalLight::eval(...)`
+
+Delta emitters have zero area so there is measure-zero probability of hitting them via BSDF sampling.
+
+#### `DirectionalLight::sample(...)`
+
+Given a shading point $\mathbf{x}$, we sample the incoming direction $\boldsymbol{\omega}_\text{i}$ deterministically since there is only one valid direction. We set:
+- $\boldsymbol{\omega}_\text{i} = -\boldsymbol{\omega}_\ell$ (toward the light source)
+- $\mathbf{p} = \mathbf{x} + \boldsymbol{\omega}_\text{i} \cdot 2r_\text{scene}$ (a fictitious point far away)
+- $\text{pdf} = 1$ (delta distribution, handled specially)
+- Shadow ray from $\mathbf{x}$ toward $\boldsymbol{\omega}_\text{i}$ with infinite extent
+
+The returned radiance is simply $L_\text{e} = \texttt{scale} \times \texttt{spectrum}$. Unlike area lights, there is no $1/r^2$ falloff since the light is infinitely distant.
+
+#### `DirectionalLight::pdf(...)`
+
+Delta lights have zero measure, thus PDF = 0. This is required for MIS to correctly handle the delta distribution---the MIS weight computation uses this PDF, and returning 0 ensures that BSDF-sampled paths that happen to align with the light direction don't incorrectly contribute.
+
+#### `DirectionalLight::samplePhoton(...)`
+
+For photon mapping, we need to emit photons that cover the entire scene uniformly from the light direction. Following [PBR book 12.5](https://pbr-book.org/4ed/Light_Sources/Light_Emission#PhotonEmissionMethods), we:
+
+1. Sample a point on a disk of radius $r_\text{scene}$ perpendicular to the light direction $\boldsymbol{\omega}_\ell$
+2. Position this disk behind the scene (offset by $r_\text{scene}$ along $-\boldsymbol{\omega}_\ell$)
+3. Emit a ray from this point in direction $\boldsymbol{\omega}_\ell$
+
+The disk sampling uses an orthonormal frame built from $\boldsymbol{\omega}_\ell$:
+$$
+\mathbf{o} = r_\text{scene}(u \cdot \mathbf{s} + v \cdot \mathbf{t}) - r_\text{scene} \cdot \boldsymbol{\omega}_\ell
+$$
+where $(u, v)$ is a uniform disk sample and $(\mathbf{s}, \mathbf{t}, \boldsymbol{\omega}_\ell)$ form an orthonormal basis.
+
+The photon power is $L_\text{e} \times \pi r_\text{scene}^2$ (radiance times the disk area), which accounts for the uniform PDF of $1/(\pi r_\text{scene}^2)$ over the sampling disk.
+
+### Validation
+
+<div class="twentytwenty-container">
+    <img src="directional-light/spheres_1_path_mis.png" alt="Path Tracing (MIS), direction (0, 0, -1)" class="img-responsive">
+    <img src="directional-light/spheres_2_path_mis.png" alt="Path Tracing (MIS), direction (-0.3, -0.4, -1)">
+</div>
+
+## Environment Map Emitter
+
+Environment Map Emitter simulates global illumination by using an environment map as a light source.
+
+### Description
+
+**Files created or modified**:
+
+**Validation scenes**:
+
+### Validation
+
+
+<!-- Bootstrap core CSS and JavaScript -->
+
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="../resources/bootstrap.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+
+<!-- Markdeep: -->
+<script>var markdeepOptions = {onLoad: function() {$(".twentytwenty-container").twentytwenty({default_offset_pct: 0.5, move_slider_on_hover: true, placeholder: '../resources/nori.png'});},tocStyle:'none'};</script>
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
