@@ -4,7 +4,7 @@
 
 [Back to Index](index.html)
 
-**Nori Maki**
+**Nori**
 
 # Features -- Emitters
 
@@ -94,7 +94,6 @@ I compared my implementation with Mitsuba with the Cornell box scene with two cu
 
 I also updated `path_mis.cpp` to support delta lights (spotlights and point lights) by modifying the MIS weight calculation. For delta lights (detected by checking if `ems_lRec.n.isZero()`), I set the MIS weight to 1.0 since delta lights cannot be sampled by BSDF sampling (the probability of randomly hitting a point light via BSDF is zero). This ensures that only emitter sampling contributes when rendering scenes with delta lights, preventing the image from being incorrectly darkened by MIS weighting.
 
-**Comparison: Cornell Box with Spot Light**
 <div class="twentytwenty-container">
     <img src="spotlight/cbox_direct_mitsuba.png" alt="Mitsuba Direct" class="img-responsive">
     <img src="spotlight/cbox_direct.png" alt="Mine Direct" class="img-responsive">
@@ -167,15 +166,234 @@ The photon power is $L_\text{e} \times \pi r_\text{scene}^2$ (radiance times the
 
 ## Environment Map Emitter
 
-Environment Map Emitter simulates global illumination by using an environment map as a light source.
+An environment map emitter (infinite area light) wraps the scene in an infinitely large sphere textured with an HDR image, so that every direction in space receives radiance defined by the map. This is discussed in [chapter 12.4 of the PBR book](https://www.pbr-book.org/4ed/Light_Sources/Infinite_Area_Lights).
 
 ### Description
 
 **Files created or modified**:
+- `src/envmap.cpp`
+- `include/nori/emitter.h`
+- `include/nori/scene.h` and `src/scene.cpp`
+- All integrators: `src/path_mis.cpp`, `src/path_mats.cpp`, `src/path_ris.cpp`, `src/direct_mis.cpp`, `src/direct_mats.cpp`, `src/direct_ems.cpp`, `src/direct.cpp`
+- `envmap_sampling_viz.py`
+- `latlong_to_equalarea.py`
 
 **Validation scenes**:
+- `scenes/nori-beyond/environment_map/cbox_envmap.xml`
+
+A new emitter type `EnvironmentMap` is implemented in the file `envmap.cpp`, registered as `"envmap"`.
+
+For every direction $\boldsymbol{\omega}$ in the sphere, light comes from that direction with some radiance $L(\boldsymbol{\omega})$. If we shoot a ray and it misses everything in the scene, we look up the ray direction in the HDR environment image. However, since our HDR file is a 2D image, but directions live on a sphere, we need a mapping
+
+$$
+\boldsymbol{\omega} = (x, y, z) \leftrightarrow (u, v) \in [0, 1]^2
+$$
+
+Following [Chapter 3.8.3 in the PBR book](https://www.pbr-book.org/4ed/Geometry_and_Transformations/Spherical_Geometry#x3-OctahedralEncoding), the environment map image uses the equal-area octahedral parameterization rather than the traditional equirectangular (latitude-longitude) projection. The traditional equirectangular mapping $u = \phi / 2\pi, v = \theta / \pi$ compresses solid angles near the poles ($\sin\theta \to 0$), so polar pixels cover vanishingly small solid angles. This requires an explicit $\sin\theta$ correction in the sampling distribution and introduces a $1/(2\pi^2 \sin\theta)$ Jacobian that becomes singular at the poles. 
+
+The equal-area octahedral mapping avoids these issues. It combines:
+
+1. Octahedral projection: Project the unit sphere onto the faces of an octahedron, then unfold the octahedron into a square
+2. Concentric disk-to-hemisphere mapping: Apply an area-preserving mapping (from [Shirley & Chiu 1997](https://www.semanticscholar.org/paper/A-Low-Distortion-Map-Between-Disk-and-Square-Shirley-Chiu/6d35a18ea5da3f0543bb2e8ab45b81c5b1e6b84e)) so that each pixel subtends exactly the same solid angle: $4\pi / (W \times H)$
+
+**Forward mapping** (sphere to square, implemented in `src/envmap.cpp` as a helper function `equalAreaSphereToSquare(const Vector3f &d)`): Given a direction $\boldsymbol{\omega} = (x, y, z)$ on the unit sphere, the mapping computes $(u, v) \in [0, 1]^2$. The setup is as follows: Imagine an octahedron inscribed in a sphere. The ocatahedron can be unfolded to a square -- the top four faces of it (where $z \geq 0$) map directly to a diamond in the center of the 2D square, and the bottom four faces (where $z < 0$) are "folded out" into the four corner triangles.
+1. In the setup described above, we can then define the $\mathrm{L}1$ radius $R$ from latitude. The latitude (circle on the sphere at a specific height $z$) is mapped to the square $[-1, 1]^2$ such that the point on the square sits on a concentric diamond around the origin if $z \geq 0$ or a concentric corner triangle near $(\pm 1, \pm1)$ if $ z < 0$. This is defined by $R = \sqrt{1 - |z|}$, which means that:
+    - when $z \geq 0$, the $\mathrm{L}1$ radius on the square is given by $|u| + |v| = R$
+    - when $z < 0$, the $\mathrm{L}1$ radius on the square is given by $|u| + |v| = 2 - R$
+2. Next we determine where along that line the point lands. We first work in the positive quadrant of $[-1, 1]^2$ using $|x|$ and $|y|$. Let
+    ```
+    double a = max(fabs(x), fabs(y));
+    double b = min(fabs(x), fabs(y));
+    b = (a == 0) ? 0 : b / a;
+    ```
+    Then we approximate $\phi = \frac{4}{\pi}\arctan(b)$ using a minimax polynomial. In implementation, the exact coefficients in Nori are taken from PBRT's source code, in [`src/pbrt/util/math.cpp`](https://github.com/mmp/pbrt-v4/blob/master/src/pbrt/util/math.cpp) inside `EqualAreaSphereToSquare()`, where the authors mention that the code is "Via source code from Clarberg: Fast Equal-Area Mapping of the (Hemi)Sphere using SIMD". This avoids calling `atan()` directly:
+    ```
+    double phi = P(b);   // approximates (4/pi) * atan(b)
+    if (fabs(x) < fabs(y))
+        phi = 1 - phi;
+    ```
+    This gives a normalized position along the diamond edge in the positive quadrant. The corresponding coordinates are
+    ```
+    double vp = phi * R;
+    double up = R - vp;
+    ```
+    For the upper hemisphere ($z \ge 0$), this already lies on the inner diamond $|u| + |v| = R$. For the lower hemisphere ($z < 0$), the point must be folded out to the corner triangle:
+    ```
+    if (z < 0) {
+        swap(up, vp);
+        up = 1 - up;
+        vp = 1 - vp;
+    }
+    ```
+    After this step, $(u_p, v_p)$ lies in the positive quadrant with the correct $\mathrm{L}1$ radius: $R$ for the upper hemisphere and $2 - R$ for the lower hemisphere.
+3. We then restore the original $x$ and $y$ signs and remap from $[-1, 1]^2$ to $[0, 1]^2$:
+    ```
+    double u_signed = copysign(up, x);
+    double v_signed = copysign(vp, y);
+
+    double u = (u_signed + 1) / 2;
+    double v = (v_signed + 1) / 2;
+    ```
+    This places the point in the correct quadrant of the final square.
+
+**Inverse mapping** (square to sphere, implemented in `src/envmap.cpp` as a helper function `equalAreaSquareToSphere(const Point2f &p)`): Given $(u, v) \in [0, 1]^2$, we recover $\boldsymbol{\omega}$. Following PBRT, it uses a direct branch-free formula that maps the square back to the sphere.
+
+1. Remap $(u, v)$ from $[0, 1]^2$ to $[-1, 1]^2$ and work with $(u', v')$ in that signed square. Their absolute values determine how far the point is from the diagonal $|u'| + |v'| = 1$, which separates the upper and lower hemispheres:
+    ```
+    double up = fabs(u');
+    double vp = fabs(v');
+    double signedDistance = 1 - (up + vp);
+    double r = 1 - fabs(signedDistance);
+    ```
+    Here, `signedDistance` determines the hemisphere: positive means upper hemisphere, negative means lower hemisphere. The quantity $r$ is the same equal-area radius used by the forward map.
+2. Reconstruct the angular parameter within the positive quadrant:
+    ```
+    double phi = (r == 0 ? 1 : (vp - up) / r + 1) * (M_PI / 4);
+    ```
+    This is the inverse of the forward-map relation that used $\phi$ to split the radius into two square coordinates. It recovers the angle within one octahedral sector.
+3. Convert $(r, \phi)$ back to a 3D direction:
+    ```
+    double z = copysign(1 - r * r, signedDistance);
+    double cosPhi = copysign(cos(phi), u');
+    double sinPhi = copysign(sin(phi), v');
+    double rFactor = r * sqrt(2 - r * r);
+    return Vector3f(cosPhi * rFactor, sinPhi * rFactor, z);
+    ```
+    These steps are not direct inverses of the `swap()` / `1 - u` folding logic used in `equalAreaSphereToSquare()`. Instead, they reconstruct the sphere point from the equal-area square parameterization in one shot:
+
+    1. `z = copysign(1 - r^2, signedDistance)` recovers the hemisphere and height on the sphere.
+    2. `cosPhi` and `sinPhi` recover the azimuthal direction inside the correct quadrant by attaching the signs of $u'$ and $v'$.
+    3. `rFactor = r\sqrt{2-r^2}` is the radius of the projected point in the $xy$-plane, coming from PBRT's equal-area disk-to-hemisphere mapping.
+
+To find the light coming from direction $\boldsymbol{\omega}$, we convert that direction into map coordinates $(u, v)$, find which pixel $(x, y)$ that lands on in our $W \times H$ image, take that pixel's color and multiply it by a brightness scale:
+
+$$
+L(\boldsymbol{\omega}) = \texttt{scale} \times \texttt{image}\left[\lfloor v \cdot H \rfloor\right]\left[\lfloor u \cdot W \rfloor\right]
+$$
+
+Uniform sphere sampling would be very inefficient since most of the radiance is typically concentrated in a small region (e.g. the sun). Following [PBRT Chapter 12.4](https://www.pbr-book.org/4ed/Light_Sources/Infinite_Area_Lights), we build a 2D piecewise-constant distribution over the image pixels.
+
+Because the equal-area mapping ensures every pixel covers the same solid angle, the sampling weights are simply the luminance of each pixel, and no $\sin\theta$ correction is needed. This is one of the key advantages of the equal-area mapping.
+
+The distribution is built in two levels:
+1. Conditional CDFs (per row): For each row $y$, build a CDF over columns weighted by $w(x, y) = \text{luminance}(x, y)$
+2. Marginal CDF (over rows): Build a CDF over rows weighted by the integral of each row $\sum_x w(x, y)$
+
+Sampling draws a row from the marginal CDF, then a column from that row's conditional CDF, both via binary search. The sampled pixel $(x, y)$ is converted back to a direction via `EqualAreaSquareToSphere`.
+
+The PDF in solid-angle measure is obtained by a simple change of variables. Since the equal-area mapping has Jacobian $1/(4\pi)$ (mapping $[0, 1]^2$ to the unit sphere of area $4\pi$):
+
+$$
+p(\boldsymbol{\omega}) = \frac{p(u, v)}{4\pi}
+$$
+
+where $p(u, v) = p_\text{marginal}(v) \times p_\text{conditional}(u \mid v) \times W \times H$ is the discrete probability density in image space.
+
+#### `include/nori/emitter.h`
+
+Two functions `isEnvironment` and `evalEnvironment` are added. `isEnvironment` returns true if this is an environment emitter and is false by default. `EnvironmentMap::isEnvironment(...)` overrides to true. `evalEnvironment` is needed for the case where a ray escapes the scene entirely. With no intersection information, we only have the ray's direction. `evalEnvironment` is a direction-only convenience method added to this base `Emitter` class for this specific case.
+
+#### `Scene::addChild(...)`
+
+In the header file, we add a single stored pointer to the environment light `m_envEmitter` and the method `getEnvironmentEmitter` that returns the pointer to the environment emitter.
+
+In the case of an emitter, we additionally check if the emitter is an environment light and if pointer `m_envEmitter` is already non-null, i.e. the scene already has an environment emitter stored, in which case we throw an exception.
+
+#### `EnvironmentMap::eval(...)`
+
+Implements `EnvironmentMap::evalEnvironment(...)` with the direction `lRec.wi`. The evaluation proceeds in the following steps:
+
+1. Transform the world-space direction $\mathbf{d}$ on the unit sphere into 2D texture coordinates $(u, v) \in [0, 1]^2$ using `equalAreaSphereToSquare`
+
+2. Convert the continuous $(u, v)$ coordinates to pixel space with pixel-centered addressing:
+   $$
+   f_x = u \cdot W - 0.5, \quad f_y = v \cdot H - 0.5
+   $$
+   The $-0.5$ offset treats pixel centers as integer coordinates.
+
+3. Compute the integer coordinates of the four corners:
+   $$
+   x_0 = \lfloor f_x \rfloor, \quad y_0 = \lfloor f_y \rfloor, \quad x_1 = x_0 + 1, \quad y_1 = y_0 + 1
+   $$
+   Compute the fractional offsets:
+   $$
+   t_x = f_x - x_0, \quad t_y = f_y - y_0
+   $$
+   Clamp all coordinates to the valid range $[0, W-1]$ and $[0, H-1]$ respectively to handle boundary cases.
+
+4. Fetch the four corner pixel values from `m_data`:
+   $$
+   c_{00} = \texttt{m_data}[y_0 \cdot W + x_0], \quad c_{10} = \texttt{m_data}[y_0 \cdot W + x_1]
+   $$
+   $$
+   c_{01} = \texttt{m_data}[y_1 \cdot W + x_0], \quad c_{11} = \texttt{m_data}[y_1 \cdot W + x_1]
+   $$
+   Blend using bilinear interpolation:
+   $$
+   L(\mathbf{d}) = \texttt{scale} \times \left[(1 - t_x)(1 - t_y) \, c_{00} + t_x(1 - t_y) \, c_{10} + (1 - t_x)t_y \, c_{01} + t_x t_y \, c_{11}\right]
+   $$
+   
+   This provides smooth filtering across pixel boundaries, reducing aliasing compared to nearest-neighbor lookup.
+
+#### `buildDistribution()`
+
+This is a method that fills in `EnvironmentMap`'s member variables `m_marginalPdf`, `m_marginalCdf`, `m_conditionalPdf` and `m_conditionalCdf` using `m_width`, `m_height`, `m_data`. `m_conditionalCdf` is an array of size `m_height * (m_width + 1)` since each row requires `(m_width + 1)` boundary points to define its `m_width` bins and there are `m_height` rows in total. `m_marginalCdf` is an array of size `m_height + 1` for row sampling, according to a `marginalWeights` array.
+
+It follows the steps:
+
+1. Build the conditional CDF for each row. For each row $y$, compute the base (start of that row's CDF inside the flat `m_conditionalPdf` array) and initialize `m_conditionalPdf[base] = 0`.
+2. For each pixel $(x, y)$ in row $y$, retrieve the luminance by looking up the pixel value in `m_data`. Then build a prefix sum asnd store that into `m_conditionalCdf[base + x + 1]`.
+3. The total brightness of the row is then stored in `m_conditionalCdf[base + m_width]`, which is then saved in `marginalWeights[y]` to inform row sampling (brighter rows should be sampled more often).
+4. If the row has non-zero brightness, normalize the row CDF so that it becomes a proper CDF in $[0, 1]$. We also fill in `m_conditionalPdf` using the luminance of each pixel in the row normalized by this row total. Otherwise, it means that the row is completely black, and to avoid division by zero, we fall back to uniform sampling, where each column of the row gets probability `1 / m_width`.
+5. After building `m_conditionalCdf` and `m_conditionalPdf`, we build `m_marginalCdf` and `m_marginalPdf` using `marginalWeights`. Similar to the previous step, we normalize `m_marginalCdf` and `m_marginalPdf`.
+
+`buildDistribution` is called once after the image data is loaded. The CDFs `m_marginalCdf` and `m_conditionalCdf` are then used to sample a pixel on the environment map, and `m_marginalPdf` and `m_conditionalPdf` are used to compute the Monte Carlo radiance of the sampled pixel.
+
+#### `EnvironmentMap::sample(...)`
+
+1. Sample a row $v$ from the marginal CDF using the first random number and record $p_\text{marginal}(v)$
+2. Sample a column from that row's conditional CDF using the second random number and  and record $p_\text{marginal}(u | v)$
+3. Convert the sampled pixel to the coordinates in a $[0, 1]^2$, then to a direction $\boldsymbol{\omega}$ using `EqualAreaSquareToSphere`
+4. Compute the solid-angle PDF $p(\boldsymbol{\omega}) = p(u, v) / (4\pi)$ where $p(u, v) = p_\text{marginal}(v) p_\text{marginal}(u | v)$
+5. Set `lRec.p` to a distant point along $\boldsymbol{\omega}$ (at $2 r_\text{scene}$), and the shadow ray to $[\mathbf{x}, \boldsymbol{\omega}, \epsilon, \infty)$
+6. Return $L(\boldsymbol{\omega}) / p(\boldsymbol{\omega})$.
+
+#### `EnvironmentMap::pdf(...)`
+
+We convert the direction `lRec.wi` to image coordinates $(u, v)$ using `EqualAreaSphereToSquare` and then look up the marginal and conditional PDFs, and returns $p(u, v) / (4\pi)$.
+
+#### `EnvironmentMap::samplePhoton(...)`
+
+For photon mapping, we sample a direction from the environment map's importance distribution, then place the photon origin on a disk of radius $r_\text{scene}$ perpendicular to that direction (similar to the directional light approach). The photon power is $L(\boldsymbol{\omega}) \times \pi r_\text{scene}^2$.
+
+#### Integrator Modifications
+
+The environment map is a non-geometric emitter so `rayIntersect` can never find it. Two changes were needed in every integrator:
+
+1. **Camera rays that miss geometry**: Instead of returning black, check for an environment emitter and return $L(\boldsymbol{\omega}_\text{ray})$. This renders the environment as the background.
+2. **BSDF-sampled rays that escape the scene**: Evaluate the environment map and add its contribution. For MIS integrators, the MIS weight is computed using the environment map's solid-angle PDF as the emitter PDF.
+
+Emitter sampling already works automatically since the environment map is added to the scene's emitter list and implements `sample()` and `pdf()`.
 
 ### Validation
+
+The environment used for validation here was taken from [PolyHaven](https://polyhaven.com/a/rogland_clear_night):
+
+<img src="environment-map/rogland_clear_night_8k.png" alt="Nori">
+
+which was converted to an equal area map using `latlong_to_equalarea.py`. The upper hemisphere (the sky) is mapped to the centre diamond, and the lower hemisphere (the ground) is mapped to the four corners, just as described in the description above. Sampling is proportional to the luminance, as seen in the heat map below (brighter pixels represent more frequent sampling).
+
+<div class="twentytwenty-container">
+    <img src="environment-map/rogland_clear_night_equalarea.png" alt="Equal Area Map" class="img-responsive">
+    <img src="environment-map/rogland_clear_night_equalarea_sampling.png" alt="Equal Area Map Sampling Heat Map" class="img-responsive">
+</div>
+
+The validation scene against Mitsuba:
+
+<div class="twentytwenty-container">
+    <img src="environment-map/cbox_envmap.png" alt="Nori" class="img-responsive">
+    <img src="environment-map/cbox_envmap_mitsuba.png" alt="Mitsuba" class="img-responsive">
+</div>
 
 
 <!-- Bootstrap core CSS and JavaScript -->

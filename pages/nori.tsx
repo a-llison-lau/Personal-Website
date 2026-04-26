@@ -35,6 +35,8 @@ const slugify = (value: string): string => value
 
 const cleanLine = (line: string): string => line.trim();
 
+const stripFeaturesPrefix = (value: string): string => value.replace(/^Features --\s*/, '');
+
 const fixLatexTextttUnderscore = (line: string): string => line.replace(/\\texttt\{([^}]*)\}/g, (_, textttBody: string) => {
 	const escaped = textttBody.replace(/_/g, '\\_');
 	return `\\texttt{${escaped}}`;
@@ -127,7 +129,7 @@ const buildNoriContent = (indexContent: string, subPageContents: string[]): {
 		if (h2Match) {
 			const rawTitle = h2Match[1];
 			const linkMatch = rawTitle.match(/^\[(.+)\]\(.+\)$/);
-			const title = linkMatch ? linkMatch[1] : rawTitle;
+			const title = stripFeaturesPrefix(linkMatch ? linkMatch[1] : rawTitle);
 			const comingSoon = !linkMatch;
 			const id = makeId(title);
 			currentTopLevel = {id, title, comingSoon, features: []};
@@ -171,6 +173,8 @@ const buildNoriContent = (indexContent: string, subPageContents: string[]): {
 					continue;
 				}
 			}
+
+			line = line.replace(/^(#{1,6}\s+)Features --\s*/, '$1');
 
 			// Handle details blocks
 			if (trimmed.startsWith('<details')) {
@@ -508,12 +512,12 @@ const SidebarToc = ({toc, activeId}: {toc: TocItem[]; activeId: string}): JSX.El
 			<ul className="space-y-2 border-l border-gray-200 dark:border-gray-700">
 				{toc.map(section => (
 					<li key={section.id}>
-						{section.comingSoon ? (
-							<span className="block pl-3 py-1 text-gray-400 dark:text-gray-600 cursor-default text-xs">
-								{section.title.replace('Features -- ', '')}
-								<span className="italic ml-1">soon</span>
-							</span>
-						) : (
+							{section.comingSoon ? (
+								<span className="block pl-3 py-1 text-gray-400 dark:text-gray-600 cursor-default text-xs">
+									{section.title}
+									<span className="italic ml-1">soon</span>
+								</span>
+							) : (
 							<>
 								<a
 									href={`#${section.id}`}
@@ -522,7 +526,7 @@ const SidebarToc = ({toc, activeId}: {toc: TocItem[]; activeId: string}): JSX.El
 		? 'border-amber-500 text-amber-600 dark:text-amber-400 font-medium'
 		: 'border-transparent hover:border-gray-400 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
 	}`}>
-									{section.title.replace('Features -- ', '')}
+									{section.title}
 								</a>
 								<ul className="space-y-0.5 mt-1">
 									{section.features.map(feature => (
