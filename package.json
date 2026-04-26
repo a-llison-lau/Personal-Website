@@ -41,8 +41,10 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@n8tb1t/use-scroll-position": "^2.0.3",
+    "@vercel/analytics": "^2.0.1",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
+    "katex": "^0.16.45",
     "lucide-react": "^0.475.0",
     "next": "15.0.7",
     "next-offline": "^5.0.5",
