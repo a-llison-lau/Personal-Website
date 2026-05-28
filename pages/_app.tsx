@@ -15,6 +15,7 @@ function App({ Component, pageProps }: Readonly<AppProps>): JSX.Element {
       <GoogleTag />
       <Head>
         <title>{personalInfo.title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href={personalInfo.domain} />
         <link rel="icon" href="/favicon/favicon.ico" />
         <meta
