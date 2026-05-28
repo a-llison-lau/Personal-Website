@@ -504,8 +504,8 @@ const SidebarToc = ({toc, activeId}: {toc: TocItem[]; activeId: string}): JSX.El
 
 	return (
 		<nav
-			className="hidden xl:block fixed top-28 w-52 max-h-[calc(100vh-8rem)] overflow-y-auto text-sm pr-2"
-			style={{left: 'calc(50% - 448px - 14.5rem)'}}>
+			className="hidden toc:block fixed top-28 w-52 max-h-[calc(100vh-8rem)] overflow-y-auto text-sm pr-2"
+			style={{left: 'max(1rem, calc(50% - 448px - 14.5rem))'}}>
 			<h3 className="font-bold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
 				Contents
 			</h3>
@@ -616,6 +616,15 @@ const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMa
 					overflow-wrap: anywhere;
 					word-break: break-word;
 				}
+
+				/* Inline code (e.g. long file paths) must wrap so it never
+				   forces the content wider than the page. Excludes code
+				   blocks, which keep their own horizontal scroll. */
+				#nori-content :not(pre) > code {
+					white-space: normal;
+					overflow-wrap: anywhere;
+					word-break: break-word;
+				}
 			`}</style>
 
 			<SidebarToc toc={toc} activeId={activeId}/>
@@ -629,9 +638,9 @@ const Nori: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({introMa
 				</ReactMarkdown>
 			</div>
 
-			<section id="table-of-contents" className="mt-8 mb-10 xl:hidden">
+			<section id="table-of-contents" className="mt-8 mb-10 toc:hidden">
 				<h2 className="text-2xl font-bold mb-4">Table of Contents</h2>
-				<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					{toc.map(section => (
 						<div key={section.id} className="rounded p-3">
 							{section.comingSoon ? (
