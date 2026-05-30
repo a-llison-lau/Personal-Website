@@ -8,6 +8,14 @@ const News = (): JSX.Element => {
         <ul className="list-disc">
           {
             <li>
+              <strong>26' May</strong>:: Our abstract From Detection to Severity
+              Ranking on the Alcohol Language Corpus is accepted to the UK and
+              Ireland Speech Workshop 2026! I will presenting our work at
+              Vocadian on June 22-23 in London!
+            </li>
+          }
+          {
+            <li>
               <strong>26' May</strong>:: Our paper Memory Over Maps is accepted
               to the MM-SpatialAI Workshop at ICRA 2026 as an oral!
             </li>
