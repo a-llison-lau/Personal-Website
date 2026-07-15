@@ -24,8 +24,17 @@ const About = (): JSX.Element => {
           <p>
             I am a Master's student in computer science at{" "}
             <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
-            aspire to work on research problems in rendering or physics-based animations. I am currently also a research engineer at <ExtLink href="https://www.vocadian.ai">Vocadian</ExtLink>. I did my undergraduate studies
-            in physics and computer science at the{" "}
+            aspire to work on research problems in rendering or physics-based
+            animations. Currently, I am working on the modelling and design of
+            discrete interlocking material systems with Prof.{" "}
+            <ExtLink href="https://thomaszewski.com">
+              Bernhard Thomaszewski
+            </ExtLink>{" "}
+            at the Computational Robotics Laboratory (CRL). I also work as a
+            research engineer at{" "}
+            <ExtLink href="https://www.vocadian.ai">Vocadian</ExtLink>, a voice
+            tech venture on improving workforce safety. I completed my
+            undergraduate studies in physics and computer science at the{" "}
             <ExtLink href={personalInfo.about.college.link}>
               {personalInfo.about.college.name}
             </ExtLink>
