@@ -1,6 +1,29 @@
 [
   {
-    "src": "/images/gallery/scene.png",
-    "caption": "Final render for the Computer Graphics course @ ETH Zurich. Rendered using Nori with heterogeneous participating media, many lights sampling, and various BSDFs."
+    "src": "/images/gallery/ships_combined-1280.jpg",
+    "srcset": "/images/gallery/ships_combined-768.jpg 768w, /images/gallery/ships_combined-1280.jpg 1280w, /images/gallery/ships_combined-1920.jpg 1920w",
+    "full": "/images/gallery/ships_combined.png",
+    "width": 1920,
+    "height": 1080,
+    "lqip": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAOABgDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAMBAgQG/8QAHxAAAgMAAgIDAAAAAAAAAAAAAQIAAxEhQQQSMVGh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAERA//aAAwDAQACEQMRAD8A55VLsQgLEDcA2NvoFRYLar5mEd8bKISjAqcAO4O4+11t8P0QEGlTrHv5/YdKoZNH3CRSwCMpUMTzp6hFNPNn/9k=",
+    "caption": "MIS path tracing, disney BSDF w/ image texture + normal mapping, heterogeneous emissive volume, thin-lens DOF"
+  },
+  {
+    "src": "/images/gallery/scene_smooth_snow-1280.jpg",
+    "srcset": "/images/gallery/scene_smooth_snow-768.jpg 768w, /images/gallery/scene_smooth_snow-1280.jpg 1280w, /images/gallery/scene_smooth_snow-1920.jpg 1920w",
+    "full": "/images/gallery/scene_smooth_snow.png",
+    "width": 1920,
+    "height": 1080,
+    "lqip": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAOABgDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAQBAgMF/8QAIhAAAgEEAgEFAAAAAAAAAAAAAQIRAAMSIQQxQRMyUaHh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAL/xAAWEQADAAAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/AOXavNZdXJyUHdannmSrhpb2hNfdK22yVREZL12Ov2pfjn0ATcxUbaFnXiibEQ2AYDICDl1MnfgmiqWrDW+MpOJtsfGiY+aKiwuH/9k=",
+    "caption": "MIS path tracing, disney BSDF w/ image texture + normal mapping, thin-lens DOF"
+  },
+  {
+    "src": "/images/gallery/scene_pool_4k-1280.jpg",
+    "srcset": "/images/gallery/scene_pool_4k-768.jpg 768w, /images/gallery/scene_pool_4k-1280.jpg 1280w, /images/gallery/scene_pool_4k-1920.jpg 1920w",
+    "full": "/images/gallery/scene_pool_4k.png",
+    "width": 1920,
+    "height": 1080,
+    "lqip": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAOABgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQAE/8QAIhAAAgEEAgEFAAAAAAAAAAAAAQIRAAMEIRIxIjJBUWHR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAVEQEBAAAAAAAAAAAAAAAAAAAAAf/aAAwDAQACEQMRAD8AYygHVg7BSR2BRVm8F5lFAZ48voCmsuwuVZYegiNj4nqs6YK2XvcX5AgcwyiND2qkHhnZ47gAQdxVTCYdtrYI0YGx+VUR/9k=",
+    "caption": "volumetric photonmapper w/ caustic map & final gather, disney BSDF w/ image texture + normal mapping, heterogeneous participating media, thin-lens DOF"
   }
 ]

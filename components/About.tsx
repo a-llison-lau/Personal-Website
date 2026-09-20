@@ -25,8 +25,8 @@ const About = (): JSX.Element => {
             I am a Master's student in computer science at{" "}
             <ExtLink href="https://inf.ethz.ch/">ETH Zurich</ExtLink>, where I
             aspire to work on research problems in rendering or physics-based
-            animations. Currently, I am working on the modelling and design of
-            discrete interlocking material systems with Prof.{" "}
+            animations. Currently, I am working on discrete shells simulations
+            with Prof.{" "}
             <ExtLink href="https://thomaszewski.com">
               Bernhard Thomaszewski
             </ExtLink>{" "}

@@ -5,7 +5,7 @@ interface Props {
     project: {
         title: string;
         description: string;
-        img: string;
+        img?: string;
         date?: string;
         tags?: string[];
         github?: string;
