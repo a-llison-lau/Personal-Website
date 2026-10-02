@@ -130,7 +130,7 @@ const PhotoGallery = (): JSX.Element => {
   }
 
   return (
-    <section className="mt-8" id="gallery">
+    <section className="w-full mt-8" id="gallery">
       <div
         className="relative w-full overflow-hidden select-none"
         onWheel={handleWheel}
