@@ -19,7 +19,7 @@ const VideoReel = (): JSX.Element => (
       />
     </div>
 
-    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center text-balance">
+    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-pretty">
       Scenes rendered with{' '}
       <Link
         href="/nori"
