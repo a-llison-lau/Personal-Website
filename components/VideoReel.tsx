@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 // youtube-nocookie keeps YouTube from setting tracking cookies until the
 // visitor actually plays the video; rel=0 limits the end screen to this
 // channel's own videos.
@@ -16,6 +18,17 @@ const VideoReel = (): JSX.Element => (
         className="absolute inset-0 w-full h-full border-0"
       />
     </div>
+
+    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center text-balance">
+      Scenes rendered with{' '}
+      <Link
+        href="/nori"
+        className="border-b-[1px] border-gray-400 transition hover:bg-amber-200 dark:hover:bg-gray-600 rounded-t-sm"
+      >
+        Nori
+      </Link>
+      , a physically-based renderer I&apos;ve extended beyond the ETH Zürich CG course
+    </p>
   </section>
 );
 
