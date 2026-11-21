@@ -814,6 +814,49 @@ async function start() {
     if (!on && video && video.contentWindow) video.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
   }
 
+  // ---------- scrolling the walls ----------
+  // Chrome and Safari scroll trackpads, mouse wheels and touch on a fast path that doesn't find a scroll area inside
+  // the 3D-transformed walls (only the keyboard reached it), so the walls scroll themselves: wheel deltas directly,
+  // touch drags with a little momentum. Every gesture over a wall is handled here, so it never scrolls twice.
+  function scrollerOf(t) { return t && t.closest ? t.closest('.wall.on .wall-scroll') : null; }
+  let coast = 0;
+  wallsEl.addEventListener('wheel', function (e) {
+    const sc = scrollerOf(e.target);
+    if (!sc || e.ctrlKey) return; // ctrl + wheel is pinch-zoom: leave it to the browser
+    cancelAnimationFrame(coast);
+    const unit = e.deltaMode === 1 ? 18 : e.deltaMode === 2 ? sc.clientHeight : 1;
+    sc.scrollTop += e.deltaY * unit;
+    e.preventDefault();
+  }, { passive: false });
+  let drag = null;
+  wallsEl.addEventListener('touchstart', function (e) {
+    cancelAnimationFrame(coast);
+    const sc = scrollerOf(e.target);
+    drag = sc && e.touches.length === 1 ? { sc: sc, y: e.touches[0].clientY, t: performance.now(), v: 0, moved: false } : null;
+  }, { passive: true });
+  wallsEl.addEventListener('touchmove', function (e) {
+    if (!drag || e.touches.length !== 1) return;
+    if (e.cancelable) e.preventDefault();
+    const y = e.touches[0].clientY, now = performance.now(), dy = drag.y - y;
+    if (!drag.moved && Math.abs(dy) < 6) return; // a tap stays a tap
+    drag.moved = true;
+    drag.sc.scrollTop += dy;
+    drag.v = 0.8 * dy / Math.max(1, now - drag.t) + 0.2 * drag.v; // px per ms
+    drag.y = y; drag.t = now;
+  }, { passive: false });
+  wallsEl.addEventListener('touchend', function () {
+    if (!drag || !drag.moved || reduce) { drag = null; return; }
+    const sc = drag.sc;
+    let v = drag.v, last = performance.now();
+    drag = null;
+    coast = requestAnimationFrame(function glide(now) {
+      const dt = Math.min(now - last, 50); last = now;
+      sc.scrollTop += v * dt;
+      v *= Math.pow(0.996, dt);
+      if (Math.abs(v) > 0.02) coast = requestAnimationFrame(glide);
+    });
+  });
+
   // ---------- views: the landing, the left wall (Work) and the right wall (Reel) ----------
   let homeFov = 68;
   let view = 'home', tween = null, homeBlend = 1;
