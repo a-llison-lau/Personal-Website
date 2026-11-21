@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'Static site: no dependencies'",
+  "buildCommand": "echo 'Static site: nothing to build'",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/misc", "destination": "/", "permanent": true },
+    { "source": "/index", "destination": "/", "permanent": true }
+  ],
+  "headers": [
+    { "source": "/(fonts|vendor)/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }] },
+    { "source": "/(model|img)/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] }
+  ]
+}

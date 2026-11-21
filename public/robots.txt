@@ -1,9 +1,4 @@
-# *
 User-agent: *
 Allow: /
 
-# Host
-Host: https://nextjs-academic-theme.vercel.app/
-
-# Sitemaps
-Sitemap: https://nextjs-academic-theme.vercel.app/sitemap.xml
+Sitemap: https://allison-lau.vercel.app/sitemap.xml

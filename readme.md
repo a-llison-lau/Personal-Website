@@ -1,72 +1,31 @@
-# NextJS Academic Theme
+# Allison Lau
 
-## [Demo🔗](https://nextjs-academic-theme.vercel.app/)
-> A simple academic personal website, built with Tailwind CSS and Next.js, focused on performance, a11y and privacy 🚀
+Personal website: https://allison-lau.vercel.app
 
+A static site, no build step. Everything that is served lives in `public/`:
 
-## Highlights
+- `index.html`: the landing page, a real-time 3D room (three.js) with the Work and Reel pages hanging on its walls.
+- `work.html`, `reel.html`: the same Work and Reel content as pages of their own (for browsers without WebGL, and for links).
+- `nori.html`: the Nori renderer write-up.
+- `404.html`, `robots.txt`, `sitemap.xml`.
+- `pages.css`, `pages.js`: styles and behaviour shared by Work and Reel. `fonts.css` and `fonts/`: self-hosted fonts.
+- `model/`: the room (glTF) and its baked textures. `img/`: images. `vendor/`: three.js 0.160 and KaTeX (MIT licensed).
 
-- Built with:
-    - [Next.js](https://nextjs.org/) (Thereby, hosting on [Vercel](https://vercel.com) is recommended. FREE)
-        - Written in [TypeScript](https://nextjs.org/docs/pages/building-your-application/configuring/typescript) [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
-    - [Tailwind CSS](https://tailwindcss.com/)
-- **Easy customization** - edit the data in components/data/*.json without altering the code.
-- **Accessible** - follows [WAI-ARIA](https://developer.mozilla.org/en-US/docs/Learn/Accessibility/WAI-ARIA_basics).
-- **Responsive** - uses latest CSS features and looks great on all devices.
-- Optimized SEO
-- Traffic tracking by Google Analytics
+## Editing
 
-## Development
+- **Work or Reel**: edit `public/work.html` or `public/reel.html` between the `<!--pg:work-->` / `<!--pg:reel-->`
+  markers, then run `python3 tools/sync_walls.py` to copy the change onto the room's walls in `public/index.html`.
+- **Landing text**: in `public/index.html` (the name, roles and the introduction paragraph).
+- **Nori**: `public/nori.html` is plain HTML (equations are pre-rendered KaTeX).
+- **The 3D room**: see `tools/bake/README.md`.
 
-##### Install Node and NPM by NVM
-- For MacOS, `brew install NVM` or [install by script](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating) (any OS)
-- Then `nvm install 20` installs Node.js v20; it comes with npm.
+## Preview locally
 
-##### Run locally
+    npx serve public
 
-```bash
-cd NextJSAcademicTheme/
-# Install dependencies
-npm install
-# Run in development mode
-npm run dev
-# Build for production
-npm run build
+(`serve` understands the clean URLs such as `/work`; `python3 -m http.server -d public` works too, but then open `/work.html`.)
 
-```
+## Deploy
 
-##### Customize your info
-- in components/data/personalInfo.json
-- in components/data/work.json
-- in components/data/projects.json
-- in components/data/teaching.json
-- in .env
-- in public/cv.pdf
-
-
-##### Deploy on Vercel
-- Option 1: deploy on Vercel via [Vercel cli](https://vercel.com/docs/cli)
-
-```bash
-npm i -g vercel
-# preview
-vercel
-# production
-vercel --prod
-```
-
-- Option 2: push to your own Github repo then [connect it to Vercel](https://vercel.com/docs/deployments/git#deploying-a-git-repository) (CI/CD, i.e. every new commit to Github will reflect on Vercel automatically.)
-
-
-- After successful deployment on Vercel, it should be alive on `yourwebname.vercel.app` online. To use your own **domain name**, config the settings on Vercel [here](https://vercel.com/docs/projects/domains/add-a-domain#verify-domain-access). 
-
-##### [Optional] Track your web traffic by connecting to [Google Analytics](https://analytics.google.com/analytics/academy/course/6)
-- Simply add your project tracking code, e.g. G-38LNZ3XXXX, in `.env`.
-
-## Acknowledgments
-
-- Inspired by [https://kepinski.ch/](https://github.com/xxczaki/site)
-
-### License
-
-Code released under [WTFPL](http://www.wtfpl.net/)
+Push to `main`; Vercel deploys it. `vercel.json` tells Vercel there is nothing to install or build and to serve `public/`
+with clean URLs.

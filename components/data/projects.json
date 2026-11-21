@@ -1,7 +1,0 @@
-[
-    {
-        "title": "Nori",
-        "description": "A physically-based global illumination renderer, based on the Nori renderer backbone used in the CG course @ ETH Zürich. Work WIP since Dec 2025.",
-        "project link": "/nori"
-    }
-]

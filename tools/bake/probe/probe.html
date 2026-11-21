@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>probe</title>
+<style>html,body{margin:0;background:#000}canvas{display:block}</style>
+<canvas id="c" width="1600" height="900"></canvas>
+<script type="module">
+// Test-only page: renders the room once from the "Window" camera, so it can be compared with the Nori render.
+//   dir, ext: texture folder and extension   glb: the model (.glb)   fov: vertical fov (default: the landing's home fov)
+//   scale: multiplies the glass and background (linear), to match textures written at a lower exposure
+//   ids=1: flat object colours, no antialiasing (room red, sand green, skull blue, bones yellow, glass white, background black)
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/+esm';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js/+esm';
+const q = new URLSearchParams(location.search);
+const DIR = q.get('dir') || 'model', W = +(q.get('w') || 1600), H = +(q.get('h') || 900);
+const IDS = q.get('ids') === '1', S = +(q.get('scale') || 1);
+const canvas = document.getElementById('c'); canvas.width = W; canvas.height = H;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !IDS, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.NoToneMapping;
+const scene = new THREE.Scene();
+scene.background = IDS ? new THREE.Color(0x000000) : new THREE.Color(0xF4E3C4).multiplyScalar(S);
+const loader = new THREE.TextureLoader();
+const tex = u => new Promise((res, rej) => loader.load(u, t => { t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; res(t); }, undefined, rej));
+const gltf = await new GLTFLoader().loadAsync(q.get('glb') || 'model/room.glb');
+const names = ['room', 'sand', 'bones', 'skull'];
+const ID = { room: 0xFF0000, sand: 0x00FF00, skull: 0x0000FF, bones: 0xFFFF00, glass: 0xFFFFFF };
+const EXT = q.get('ext') || 'webp'; const maps = {};
+if (!IDS) for (const n of names) maps[n] = await tex(DIR + '/' + n + '.' + EXT);
+gltf.scene.traverse(o => {
+  if (!o.isMesh) return;
+  const key = names.concat(['glass']).find(k => o.name.indexOf(k) === 0);
+  if (!key) return;
+  if (IDS) o.material = new THREE.MeshBasicMaterial({ color: ID[key], side: THREE.DoubleSide });
+  else if (key === 'glass') o.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFF3DC).multiplyScalar(S) });
+  else o.material = new THREE.MeshBasicMaterial({ map: maps[key] });
+});
+scene.add(gltf.scene);
+const cam = new THREE.PerspectiveCamera(60, W / H, 0.03, 60);
+gltf.cameras[0].getWorldPosition(cam.position); gltf.cameras[0].getWorldQuaternion(cam.quaternion);
+cam.fov = THREE.MathUtils.radToDeg(Math.min(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(50)) / cam.aspect), THREE.MathUtils.degToRad(80)));
+if (q.get('fov')) cam.fov = +q.get('fov');
+cam.updateProjectionMatrix();
+renderer.render(scene, cam);
+const e = new THREE.Euler().setFromQuaternion(cam.quaternion);
+window.__probe = { fov: cam.fov, yfovGltf: gltf.cameras[0].fov, png: canvas.toDataURL('image/png'),
+                   pos: cam.position.toArray(), quat: cam.quaternion.toArray() };
+</script>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Work · Allison Lau</title>
+<meta name="description" content="Papers by Allison Lau: robotics, machine learning, computational sensing, medical graphics and instrumentation.">
+<link rel="canonical" href="https://allison-lau.vercel.app/work">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Work · Allison Lau">
+<meta property="og:description" content="Papers by Allison Lau: robotics, machine learning, computational sensing, medical graphics and instrumentation.">
+<meta property="og:url" content="https://allison-lau.vercel.app/work">
+<meta property="og:image" content="https://allison-lau.vercel.app/img/room.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4EBDD">
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/fonts.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-38LNZ3BSQJ"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-38LNZ3BSQJ');</script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<link rel="stylesheet" href="/pages.css">
+<style>
+/* The Work page on its own (no 3D). With 3D, the same content hangs on the room's left wall on the landing page.
+   Content styles live in pages.css; this file adds the nav and the page frame. */
+:root {
+  --paper: #F4EBDD;
+  --ink: #1A120B;
+  --soft: #7A6A5C;
+  --rust: #93430F;
+  --f-jost: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+  --f-serif: "Playfair Display", "Bodoni 72", Didot, Georgia, serif;
+  --pad: max(18px, 3.2vw);
+  --pad-top: max(14px, 2.4vw);
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body { margin: 0; color: var(--ink); overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 1.5px solid var(--rust); outline-offset: 4px; border-radius: 2px; }
+
+.header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: var(--pad-top) var(--pad) 0; padding-left: max(var(--pad), env(safe-area-inset-left, 0px)); padding-right: max(var(--pad), env(safe-area-inset-right, 0px)); }
+.home { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
+.home img { display: block; width: auto; height: 46px; opacity: .9; transition: transform .6s var(--ease); }
+.home:hover img { transform: rotate(-8deg) scale(1.06); }
+.nav ul { display: flex; gap: clamp(20px, 2.8vw, 40px); margin: 0; padding: 0; list-style: none; }
+.nav a { display: inline-flex; align-items: center; min-height: 44px; font: 500 clamp(13px, 1.1vw, 15px)/1 var(--f-jost); color: var(--ink); text-decoration: none; }
+.roll { position: relative; display: inline-block; overflow: hidden; line-height: 1.3; vertical-align: middle; }
+.roll > span, .roll::after { display: block; transition: transform .6s var(--ease); }
+.roll::after { content: attr(data-text); position: absolute; top: 100%; left: 0; font-family: var(--f-serif); font-style: italic; color: var(--rust); }
+.nav a:hover .roll > span, .nav a:hover .roll::after, .nav a:focus-visible .roll > span, .nav a:focus-visible .roll::after { transform: translateY(-100%); }
+.nav a[aria-current="page"] { color: var(--rust); }
+
+.wrap { width: min(1240px, 100%); margin: 0 auto; padding: 0 var(--pad) clamp(40px, 7vh, 72px); padding-left: max(var(--pad), env(safe-area-inset-left, 0px)); padding-right: max(var(--pad), env(safe-area-inset-right, 0px)); }
+.credit { margin: 0; padding: 8px var(--pad) var(--pad-top); padding-left: max(var(--pad), env(safe-area-inset-left, 0px)); font: 500 11px/1.3 var(--f-jost); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+.credit a { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--rust); }
+
+@media (max-width: 720px) {
+  .header { grid-template-columns: auto 1fr; gap: 12px; }
+  .nav { justify-self: end; }
+  .nav ul { gap: 16px; }
+  .home img { height: 38px; }
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <a class="home" href="/" aria-label="Back to the room"><img src="/img/favicon.svg" alt=""></a>
+  <nav class="nav" aria-label="Primary">
+    <ul>
+      <li><a href="/"><span class="roll" data-text="About"><span>About</span></span></a></li>
+      <li><a href="/#work" aria-current="page"><span class="roll" data-text="Work"><span>Work</span></span></a></li>
+      <li><a href="/nori"><span class="roll" data-text="Projects"><span>Projects</span></span></a></li>
+      <li><a href="/#reel"><span class="roll" data-text="Reel"><span>Reel</span></span></a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="wrap pg play">
+<!--pg:work-->
+<header class="pg-hero">
+  <h1 class="pg-title" aria-label="Work"><span style="--i:0">W</span><span style="--i:1">O</span><span style="--i:2">R</span><span style="--i:3">K</span></h1>
+  <p class="pg-lede">My previous work spans diverse domains, including causal effect estimation and security in LLMs, computational sensing, medical computer graphics, and interdisciplinary science and instrumentation.</p>
+</header>
+
+<section aria-label="Papers">
+  <div class="pg-sec-head">
+    <h2 class="pg-label">Papers</h2>
+  </div>
+  <ol class="pg-list">
+    <li class="pg-paper" style="--i:0">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p1">
+        <span class="pg-no">01</span>
+        <span class="pg-t">Memory Over Maps: 3D Object Localization Without Reconstruction</span>
+        <span class="pg-venue">ICRA 2026 MM-SpatialAI Workshop · Oral</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p1" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Rui Zhou*, Xander Yap*, Jianwen Cao, <strong>Allison Lau</strong>, Boyang Sun, Marc Pollefeys</p>
+        <p class="pg-abstract">We present a map-free approach to object localization that stores only posed RGB-D keyframes as visual memory instead of building dense 3D reconstructions. At query time, the system retrieves candidate views, applies vision-language filtering, and fuses sparse 3D estimates via depth backprojection.</p>
+        <p class="pg-note">* Equal contribution</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2603.20530" target="_blank" rel="noopener noreferrer">Paper ↗</a><a href="https://ruizhou-cn.github.io/memory-over-maps/" target="_blank" rel="noopener noreferrer">Project page ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:1">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p2">
+        <span class="pg-no">02</span>
+        <span class="pg-t">Personalized Adaptation via In-Context Preference Learning</span>
+        <span class="pg-venue">NeurIPS 2024 Workshop on Adaptive Foundation Models</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p2" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors"><strong>Allison Lau</strong>, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan</p>
+        <p class="pg-abstract">We introduce the Preference Pretrained Transformer (PPT), a method for adaptive personalization using online user feedback. PPT combines offline training with a history-dependent loss and online adaptation through in-context learning to dynamically align with individual preferences.</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2410.14001v1" target="_blank" rel="noopener noreferrer">Paper ↗</a><a href="https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf" target="_blank" rel="noopener noreferrer">Poster ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:2">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p3">
+        <span class="pg-no">03</span>
+        <span class="pg-t">The Wearipedia Project: a free and open-source resource for understanding and using wearables in decentralized clinical trials</span>
+        <span class="pg-venue">medRxiv preprint, 2025</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p3" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Alexander Johansen, Kyu Hur, Jack Hung, Rodrigo Castellon, Tristan Peng, Stephanie Ren, Renee White, Chanyeong Park, <strong>Allison Lau</strong>, Saarth Shah, Hee Jung Choi, William Wang, Pann Sripitak, Mohamed Elhusinni, Michael Snyder</p>
+        <p class="pg-abstract">We aimed to build a resource for clinical researchers to select the best device for their research study, and programming tools to facilitate wearable research.</p>
+        <p class="pg-links"><a href="https://www.medrxiv.org/content/10.1101/2025.05.12.25327465v1.full.pdf" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:3">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p4">
+        <span class="pg-no">04</span>
+        <span class="pg-t">Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method</span>
+        <span class="pg-venue">Eurographics VCBM 2024</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p4" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Wenzhangzhi Guo, <strong>Allison Lau</strong>, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs</p>
+        <p class="pg-abstract">We developed a 3D mesh generation pipeline to model skin flap surgeries and systematically explored variations in undermining regions. We conducted suture force and suture line analyses to assess outcomes across these regions, and visualized skin flap procedures using personalized 3D face scans for enhanced patient-specific planning.</p>
+        <p class="pg-links"><a href="https://www.sciencedirect.com/science/article/pii/S0097849324001924?ref=pdf_download&amp;fr=RR-2&amp;rr=8e667ef07d20abd6" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:4">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p5">
+        <span class="pg-no">05</span>
+        <span class="pg-t">Beyond CCDs: Characterization of sCMOS detectors for optical astronomy</span>
+        <span class="pg-venue">SPIE Astronomical Telescopes + Instrumentation 2024</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p5" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, <strong>Allison Lau</strong>, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li</p>
+        <p class="pg-abstract">We highlight the suitability of sCMOS detectors for space imaging, evaluating detectors like the Teledyne Prime 95B for wide fields and Hamamatsu Orca-Quest for deep-sky imaging, which demonstrated exceptional performance and low noise levels.</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2409.16449" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+  </ol>
+</section>
+
+<nav class="pg-after" aria-label="More">
+  <a href="/" data-view="home">← Back to the room</a>
+  <a href="/nori">Projects: Nori →</a>
+</nav>
+<!--/pg:work-->
+</main>
+
+<p class="credit">Design inspired by <a href="https://arshkhachatrian.com/" target="_blank" rel="noopener noreferrer">Arsh Khachatrian</a></p>
+
+<script src="/pages.js"></script>
+</body>
+</html>

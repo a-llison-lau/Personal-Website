@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Allison Lau</title>
+<meta name="description" content="Allison (Tsz Kwan) Lau, a graduate student at ETH Zürich working on physically-based rendering and simulation.">
+<link rel="canonical" href="https://allison-lau.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Allison Lau">
+<meta property="og:description" content="Allison (Tsz Kwan) Lau, a graduate student at ETH Zürich working on physically-based rendering and simulation.">
+<meta property="og:url" content="https://allison-lau.vercel.app/">
+<meta property="og:image" content="https://allison-lau.vercel.app/img/room.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4EBDD">
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/fonts.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-38LNZ3BSQJ"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-38LNZ3BSQJ');</script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<link rel="stylesheet" href="/pages.css">
+<style>
+/* Layout: one full-screen stage. A nav bar across the top, the bare-room Nori render shown bright with a light sun-bleached veil only behind the text, and the full name in near-black on an elastic string with a burnt-sand echo that trails motion.
+   Palette sampled from the render: near-black ink from its deepest shadows, burnt sand from the shaded dunes, bone from the lit plaster for the veil. */
+:root {
+  --rust: #93430F;
+  --night: #D9BF98;
+  --ink: #110A05;
+  --ink-soft: rgba(17, 10, 5, .72);
+  --f-jost: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+  --f-serif: "Playfair Display", "Bodoni 72", Didot, Georgia, serif;
+  --f-gs: "General Sans", "Helvetica Neue", Arial, sans-serif;
+  --pad: max(18px, 3.2vw);
+  --pad-top: max(14px, 2.4vw);
+  --header-h: 64px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --ease-io: cubic-bezier(.65, 0, .35, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--night); color: var(--ink); font-family: var(--f-jost); overflow: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 1.5px solid var(--rust); outline-offset: 4px; border-radius: 2px; }
+
+.stage { position: relative; height: 100%; min-height: 560px; overflow: hidden; isolation: isolate; }
+.bg { position: absolute; inset: -3%; width: 106%; height: 106%; max-width: none; object-fit: cover; object-position: 50% 50%; z-index: -3; will-change: transform; }
+.scene3d { position: absolute; inset: 0; display: block; width: 100%; height: 100%; z-index: -3; opacity: 0; transition: opacity 1.4s var(--ease); }
+.scene3d.on { opacity: 1; }
+.tint { position: absolute; inset: 0; background: #FFE6C2; mix-blend-mode: screen; opacity: .06; z-index: -2; }
+/* the bone veil at the top keeps the dark name legible; soft shadows in the bottom corners keep the white introduction and credit legible over the sunlit sand */
+.shade { position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 72% 64% at 78% 100%, rgba(22, 11, 4, .66) 0%, rgba(22, 11, 4, .44) 46%, rgba(22, 11, 4, 0) 82%),
+    radial-gradient(ellipse 34% 22% at 0% 100%, rgba(22, 11, 4, .5) 0%, rgba(22, 11, 4, .25) 50%, rgba(22, 11, 4, 0) 100%),
+    linear-gradient(180deg, rgba(250, 242, 228, .42) 0%, rgba(250, 242, 228, .16) 26%, rgba(250, 242, 228, 0) 46%); }
+/* a soft bone glow keeps thin dark strokes legible over the textured plaster */
+.name, .based, .nav a { text-shadow: 0 0 22px rgba(250, 242, 228, .6); }
+
+/* ---------- nav bar ---------- */
+.header { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: var(--pad-top) var(--pad) 0; }
+.header > * { opacity: 0; transform: translateY(-14px); transition: opacity .6s var(--ease), transform .9s var(--ease); }
+.stage.ready .header > * { opacity: 1; transform: none; transition-delay: .2s; }
+.stage.ready .header > :nth-child(2) { transition-delay: .3s; }
+.stage.ready .header > :nth-child(3) { transition-delay: .4s; }
+.home { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
+.home img { display: block; width: auto; height: 46px; opacity: .92; transition: transform .6s var(--ease); }
+.home:hover img { transform: rotate(-8deg) scale(1.06); }
+.nav ul { display: flex; gap: clamp(20px, 2.8vw, 40px); margin: 0; padding: 0; list-style: none; }
+.nav a { position: relative; display: inline-flex; align-items: center; min-height: 44px; font: 500 clamp(13px, 1.1vw, 15px)/1 var(--f-jost); letter-spacing: -.005em; text-decoration: none; color: var(--ink); }
+.roll { position: relative; display: inline-block; overflow: hidden; line-height: 1.3; vertical-align: middle; }
+.roll > span, .roll::after { display: block; transition: transform .6s var(--ease); }
+.roll::after { content: attr(data-text); position: absolute; top: 100%; left: 0; font-family: var(--f-serif); font-style: italic; font-weight: 400; color: var(--rust); }
+.nav a:hover .roll > span, .nav a:hover .roll::after,
+.nav a:focus-visible .roll > span, .nav a:focus-visible .roll::after { transform: translateY(-100%); }
+.nav a[aria-current="page"] { color: var(--rust); }
+
+/* ---------- skull label (pinned beside the skull while hovered) and its keyboard equivalent ---------- */
+/* a real link that rides under the cursor while the skull is hovered, so a click on the skull is a click on a link */
+.skull-link { position: absolute; left: 0; top: 0; z-index: 1; display: none; padding: 22px 22px 22px 40px; cursor: pointer; text-decoration: none; }
+.skull-link.on { display: block; }
+.skull-label { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 7px 10px; background: #F8EEDC; border-radius: 2px; font: 600 11px/1.3 var(--f-jost); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+.skull-label i { width: 18px; height: 1px; background: var(--rust); }
+.focus-link { position: absolute; left: var(--pad); top: calc(var(--pad-top) + var(--header-h)); z-index: 3; padding: 6px 0; font: 600 12px/1.3 var(--f-jost); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rust); opacity: 0; transform: translateY(-200%); pointer-events: none; }
+.focus-link:focus-visible { opacity: 1; transform: none; pointer-events: auto; }
+
+/* ---------- credit ---------- */
+.credit { position: absolute; left: var(--pad); bottom: var(--pad-top); margin: 0; font: 500 11px/1.3 var(--f-jost); letter-spacing: .14em; text-transform: uppercase; color: #FFFFFF; opacity: 0; transition: opacity .8s var(--ease) 1.4s; }
+.stage.ready .credit { opacity: 1; }
+.credit a { color: #FFFFFF; font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .6); transition: border-color .3s var(--ease); }
+.credit a:hover { border-bottom-color: #FFFFFF; }
+
+/* ---------- hero ---------- */
+.hero { position: absolute; top: calc(var(--pad-top) + var(--header-h) + 5vh); left: var(--pad); right: var(--pad); will-change: transform; }
+.name { position: relative; margin: 0; text-align: right; font: 100 120px/.86 var(--f-jost); letter-spacing: -.025em; text-transform: uppercase; font-feature-settings: "lnum"; color: var(--ink); -webkit-user-select: none; user-select: none; }
+.line { position: relative; display: block; }
+.inner { white-space: nowrap; display: inline-block; touch-action: none; cursor: default; }
+.name[data-phase="in"] .line { clip-path: inset(-.6em -.4em -.05em -.4em); }
+.ch { display: inline-block; position: relative; }
+.g, .e { display: block; transform-origin: 50% 72%; will-change: transform, opacity; }
+.e { position: absolute; inset: 0; color: var(--rust); opacity: 0; }
+.name.js .g { opacity: 0; }
+.name.still .g { opacity: 1; }
+
+/* rotating role line + based-in line, right-aligned under the name */
+.sub { display: flex; flex-direction: column; align-items: flex-start; margin-top: clamp(6px, 1.4vh, 16px); opacity: 0; transform: translateY(18px); transition: opacity .6s var(--ease) .8s, transform .9s var(--ease) .8s; }
+.stage.ready .sub { opacity: 1; transform: none; }
+.role { margin: 0; display: grid; justify-items: start; font: 400 clamp(17px, 2.7vw, 5.6vh)/1 var(--f-jost); letter-spacing: -.01em; text-transform: uppercase; color: var(--ink); }
+.role-item { grid-area: 1 / 1; white-space: nowrap; text-align: left; visibility: hidden; }
+.role-item[data-state] { visibility: visible; }
+.w { position: relative; display: inline-block; vertical-align: top; overflow: hidden; padding-bottom: .14em; }
+.w > span { display: inline-block; transform: translateY(115%); }
+.role-item[data-state="still"] .w > span { transform: none; }
+.role-item[data-state="in"] .w > span { animation: w-in .9s var(--ease) both; animation-delay: calc(var(--i) * 70ms + .12s); }
+.role-item[data-state="out"] .w > span { animation: w-out .6s var(--ease-io) both; animation-delay: calc(var(--i) * 50ms); }
+.w.mark::after { content: ""; position: absolute; left: .02em; right: .02em; bottom: .05em; height: max(2px, .05em); border-radius: 2px; background: var(--rust); transform: scaleX(0); transform-origin: 0 50%; }
+.role-item[data-state="still"] .w.mark::after { transform: scaleX(1); }
+.role-item[data-state="in"] .w.mark::after { animation: u-in 1s var(--ease) .6s both; }
+.role-item[data-state="out"] .w.mark::after { transform-origin: 100% 50%; animation: u-out .42s var(--ease-io) both; }
+@keyframes w-in { from { transform: translateY(115%); } to { transform: none; } }
+@keyframes w-out { from { transform: none; } to { transform: translateY(-115%); } }
+@keyframes u-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes u-out { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+.based { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: clamp(10px, 1.6vh, 18px) 0 0; font: 400 clamp(10.5px, .9vw, 12.5px)/1.3 var(--f-jost); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+
+/* ---------- introduction (bottom right, white over the shaded sand) ---------- */
+.intro { position: absolute; right: var(--pad); bottom: var(--pad-top); width: 44vw; margin: 0; color: #FFFFFF; font: 400 clamp(15px, 1.4vw, 21px)/1.45 var(--f-gs); letter-spacing: -.01em; -webkit-font-smoothing: antialiased; opacity: 0; transform: translateY(14px); transition: opacity .8s var(--ease) 1.2s, transform 1s var(--ease) 1.2s; }
+.stage.ready .intro { opacity: 1; transform: none; }
+.intro b { font-weight: 500; }
+.intro a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .5); transition: border-color .3s var(--ease); }
+.intro a:hover, .intro a:focus-visible { border-bottom-color: #FFFFFF; }
+
+/* ---------- pages on the walls: real HTML placed in the room by three.js's CSS3DRenderer ---------- */
+.walls { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.wall { background: #F4EBDD; box-shadow: 0 1px 0 rgba(26, 18, 11, .06), 0 50px 90px -30px rgba(50, 24, 6, .5); opacity: 0; visibility: hidden; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
+.wall.on { opacity: 1; visibility: visible; transition: opacity .9s var(--ease), visibility 0s; }
+/* the Reel hangs straight on the plaster, no card: text, frame marks and underlines in ink, which holds about 5:1
+   against the lit plaster (the softer browns and the rust drop to 2.5-3.5:1 there) */
+.wall-reel { background: transparent; box-shadow: none; }
+.wall-reel .pg { --body: var(--ink); --soft: var(--ink); }
+.wall-reel .pg-mark { border-color: var(--ink); }
+.wall-reel .pg-inline, .wall-reel .pg-back { border-bottom-color: var(--ink); }
+/* the YouTube player, laid flat over the Reel wall's screen once the camera has arrived (see the script) */
+.reel-video { position: absolute; z-index: 1; left: 0; top: 0; width: 0; height: 0; background: #1A120B; opacity: 0; visibility: hidden; transition: opacity .35s var(--ease), visibility 0s linear .35s; }
+.reel-video.on { opacity: 1; visibility: visible; transition: opacity .6s var(--ease) .1s, visibility 0s; }
+.reel-video iframe { display: block; width: 100%; height: 100%; border: 0; }
+.wall-scroll { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: 0 clamp(20px, 4vw, 64px) clamp(28px, 5vh, 56px); scrollbar-width: thin; scrollbar-color: rgba(26, 18, 11, .25) transparent; }
+.wall .pg { --title-size: clamp(60px, min(10vw, 15vh), 150px); --hero-pad: clamp(28px, 6vh, 64px) 0 clamp(32px, 6vh, 60px); }
+.wall-reel .wall-scroll { display: grid; align-content: safe center; padding-top: clamp(20px, 4vh, 40px); padding-bottom: clamp(20px, 4vh, 40px); }
+.wall-reel .pg { --avail-h: calc(var(--ph, 600px) - 2 * clamp(20px, 4vh, 40px) - 28px); --reel-top: 0; }
+@media (max-width: 960px) { .wall-reel .pg { --avail-h: calc(var(--ph, 600px) - 300px); } }
+/* away from the landing view, the name, roles, introduction and credit step aside */
+.hero { transition: opacity .9s var(--ease) .35s; }
+.shade { transition: opacity .9s var(--ease); }
+.stage.away .hero, .stage.away .intro, .stage.away .credit, .stage.away .shade { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .4s var(--ease), visibility 0s linear .4s; }
+
+@media (max-width: 720px) {
+  :root { --header-h: 48px; }
+  .intro { left: var(--pad); right: var(--pad); bottom: calc(var(--pad-top) + 46px); width: auto; font-size: 14.5px; line-height: 1.45; }
+  .wall .pg { --title-size: 64px; }
+  .header { grid-template-columns: auto 1fr; gap: 12px; }
+  .nav { justify-self: end; }
+  .nav ul { gap: 16px; }
+  .nav a { font-size: 13px; }
+  .home img { height: 38px; }
+  .hero { top: calc(var(--pad-top) + var(--header-h) + 9vh); }
+  .role { font-size: 16px; }
+  .role-item { white-space: normal; max-width: 78vw; }
+  .based { font-size: 9.5px; letter-spacing: .12em; }
+  .credit { right: auto; left: var(--pad); font-size: 9.5px; letter-spacing: .1em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .header > *, .sub, .credit, .intro { transition: none; }
+}
+</style>
+
+<script>
+/* Diagnostics: open the page with #debug at the end of the link to see what the 3D scene is doing. */
+(function () {
+  var lines = [], panel = null, on = location.hash === '#debug';
+  function render() {
+    if (!on) { if (panel) panel.hidden = true; return; }
+    if (!panel) {
+      panel = document.createElement('pre');
+      panel.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;max-width:min(92vw,760px);max-height:45vh;overflow:auto;margin:0;padding:10px 12px;background:rgba(255,255,255,.94);color:#110A05;font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;border:1px solid rgba(0,0,0,.15);-webkit-user-select:text;user-select:text;';
+      (document.body || document.documentElement).appendChild(panel);
+    }
+    panel.hidden = false;
+    panel.textContent = lines.join('\n');
+  }
+  window.diag = function (msg) { lines.push(new Date().toISOString().slice(11, 19) + '  ' + msg); render(); };
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t !== window && (t.src || t.href)) diag('load failed: ' + (t.src || t.href));
+    else diag('error: ' + e.message + (e.filename ? ' @ ' + e.filename + ':' + e.lineno : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) { diag('rejection: ' + (e.reason && (e.reason.message || e.reason))); });
+  document.addEventListener('securitypolicyviolation', function (e) { diag('blocked: ' + e.blockedURI + ' (' + e.violatedDirective + ')'); });
+  var warn = console.warn;
+  console.warn = function () {
+    diag('warn: ' + Array.prototype.map.call(arguments, function (a) { return a && a.message ? a.message : String(a); }).join(' '));
+    return warn.apply(console, arguments);
+  };
+  window.addEventListener('hashchange', function () { on = location.hash === '#debug'; render(); });
+  diag('page script running · ' + navigator.userAgent + ' · origin ' + location.origin);
+})();
+</script>
+
+</head>
+<body>
+<div class="stage" id="stage">
+  <img class="bg" id="bg" src="/img/room.jpg" alt="">
+  <canvas class="scene3d" id="scene3d" aria-hidden="true"></canvas>
+  <div class="tint" aria-hidden="true"></div>
+  <div class="shade" aria-hidden="true"></div>
+  <div class="walls" id="walls">
+    <article class="wall wall-work" id="wall-work" aria-label="Work" inert><div class="wall-scroll"><div class="pg">
+<!--pg:work-->
+<header class="pg-hero">
+  <h2 class="pg-title" aria-label="Work"><span style="--i:0">W</span><span style="--i:1">O</span><span style="--i:2">R</span><span style="--i:3">K</span></h2>
+  <p class="pg-lede">My previous work spans diverse domains, including causal effect estimation and security in LLMs, computational sensing, medical computer graphics, and interdisciplinary science and instrumentation.</p>
+</header>
+
+<section aria-label="Papers">
+  <div class="pg-sec-head">
+    <h2 class="pg-label">Papers</h2>
+  </div>
+  <ol class="pg-list">
+    <li class="pg-paper" style="--i:0">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p1">
+        <span class="pg-no">01</span>
+        <span class="pg-t">Memory Over Maps: 3D Object Localization Without Reconstruction</span>
+        <span class="pg-venue">ICRA 2026 MM-SpatialAI Workshop · Oral</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p1" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Rui Zhou*, Xander Yap*, Jianwen Cao, <strong>Allison Lau</strong>, Boyang Sun, Marc Pollefeys</p>
+        <p class="pg-abstract">We present a map-free approach to object localization that stores only posed RGB-D keyframes as visual memory instead of building dense 3D reconstructions. At query time, the system retrieves candidate views, applies vision-language filtering, and fuses sparse 3D estimates via depth backprojection.</p>
+        <p class="pg-note">* Equal contribution</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2603.20530" target="_blank" rel="noopener noreferrer">Paper ↗</a><a href="https://ruizhou-cn.github.io/memory-over-maps/" target="_blank" rel="noopener noreferrer">Project page ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:1">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p2">
+        <span class="pg-no">02</span>
+        <span class="pg-t">Personalized Adaptation via In-Context Preference Learning</span>
+        <span class="pg-venue">NeurIPS 2024 Workshop on Adaptive Foundation Models</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p2" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors"><strong>Allison Lau</strong>, Younwoo Choi, Vahid Balazadeh, Keertana Chidambaram, Vasilis Syrgkanis, Rahul Krishnan</p>
+        <p class="pg-abstract">We introduce the Preference Pretrained Transformer (PPT), a method for adaptive personalization using online user feedback. PPT combines offline training with a history-dependent loss and online adaptation through in-context learning to dynamically align with individual preferences.</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2410.14001v1" target="_blank" rel="noopener noreferrer">Paper ↗</a><a href="https://adaptive-foundation-models.org/posters/PPT_AFM_2024_Poster.pdf" target="_blank" rel="noopener noreferrer">Poster ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:2">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p3">
+        <span class="pg-no">03</span>
+        <span class="pg-t">The Wearipedia Project: a free and open-source resource for understanding and using wearables in decentralized clinical trials</span>
+        <span class="pg-venue">medRxiv preprint, 2025</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p3" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Alexander Johansen, Kyu Hur, Jack Hung, Rodrigo Castellon, Tristan Peng, Stephanie Ren, Renee White, Chanyeong Park, <strong>Allison Lau</strong>, Saarth Shah, Hee Jung Choi, William Wang, Pann Sripitak, Mohamed Elhusinni, Michael Snyder</p>
+        <p class="pg-abstract">We aimed to build a resource for clinical researchers to select the best device for their research study, and programming tools to facilitate wearable research.</p>
+        <p class="pg-links"><a href="https://www.medrxiv.org/content/10.1101/2025.05.12.25327465v1.full.pdf" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:3">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p4">
+        <span class="pg-no">04</span>
+        <span class="pg-t">Analyzing the effect of undermining on suture forces during simulated skin flap surgeries with a three-dimensional finite element method</span>
+        <span class="pg-venue">Eurographics VCBM 2024</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p4" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Wenzhangzhi Guo, <strong>Allison Lau</strong>, Joel C. Davies, Vito Forte, Eitan Grinspun, Lueder Alexander Kahrs</p>
+        <p class="pg-abstract">We developed a 3D mesh generation pipeline to model skin flap surgeries and systematically explored variations in undermining regions. We conducted suture force and suture line analyses to assess outcomes across these regions, and visualized skin flap procedures using personalized 3D face scans for enhanced patient-specific planning.</p>
+        <p class="pg-links"><a href="https://www.sciencedirect.com/science/article/pii/S0097849324001924?ref=pdf_download&amp;fr=RR-2&amp;rr=8e667ef07d20abd6" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+    <li class="pg-paper" style="--i:4">
+      <h3><button class="pg-row" type="button" aria-expanded="false" aria-controls="pg-p5">
+        <span class="pg-no">05</span>
+        <span class="pg-t">Beyond CCDs: Characterization of sCMOS detectors for optical astronomy</span>
+        <span class="pg-venue">SPIE Astronomical Telescopes + Instrumentation 2024</span>
+        <span class="pg-plus" aria-hidden="true"></span>
+      </button></h3>
+      <div class="pg-panel" id="pg-p5" inert><div class="pg-panel-in"><div class="pg-detail">
+        <p class="pg-authors">Aditya Khandelwal, Sarik Jeram, Ryan Dungee, Albert W.K. Lau, <strong>Allison Lau</strong>, Ethen Sun, Phil Van-Lane, Shaojie Chen, Aaron Tohuvavohu, Ting S. Li</p>
+        <p class="pg-abstract">We highlight the suitability of sCMOS detectors for space imaging, evaluating detectors like the Teledyne Prime 95B for wide fields and Hamamatsu Orca-Quest for deep-sky imaging, which demonstrated exceptional performance and low noise levels.</p>
+        <p class="pg-links"><a href="https://arxiv.org/abs/2409.16449" target="_blank" rel="noopener noreferrer">Paper ↗</a></p>
+      </div></div></div>
+    </li>
+  </ol>
+</section>
+
+<nav class="pg-after" aria-label="More">
+  <a href="/" data-view="home">← Back to the room</a>
+  <a href="/nori">Projects: Nori →</a>
+</nav>
+<!--/pg:work-->
+    </div></div></article>
+    <article class="wall wall-reel" id="wall-reel" aria-label="Reel" inert><div class="wall-scroll"><div class="pg">
+<!--pg:reel-->
+<div class="pg-reel">
+  <header class="pg-hero">
+    <h2 class="pg-title" aria-label="Reel"><span style="--i:0">R</span><span style="--i:1">E</span><span style="--i:2">E</span><span style="--i:3">L</span></h2>
+  </header>
+  <figure class="pg-player">
+    <span class="pg-mark tl" aria-hidden="true"></span><span class="pg-mark tr" aria-hidden="true"></span>
+    <span class="pg-mark bl" aria-hidden="true"></span><span class="pg-mark br" aria-hidden="true"></span>
+    <div class="pg-screen">
+      <span class="pg-video-slot" data-src="https://www.youtube-nocookie.com/embed/2f1P4l42twE?rel=0&amp;playsinline=1&amp;enablejsapi=1"></span>
+    </div>
+  </figure>
+  <section class="pg-info" aria-label="About this reel">
+    <p>Renders from <a class="pg-inline" href="/nori">Nori</a>, the physically-based renderer I extended beyond ETH Zürich’s Computer Graphics course.</p>
+    <a class="pg-back" href="/" data-view="home">← Back to the room</a>
+  </section>
+</div>
+<!--/pg:reel-->
+    </div></div></article>
+  </div>
+  <div class="reel-video" id="reel-video" inert></div>
+
+  <header class="header">
+    <a class="home" href="/" data-view="home" aria-label="Allison Lau, home"><img src="/img/favicon.svg" alt=""></a>
+    <nav class="nav" aria-label="Primary">
+      <ul>
+        <li><a href="/" data-view="home" aria-current="page"><span class="roll" data-text="About"><span>About</span></span></a></li>
+        <li><a href="/work" data-view="work"><span class="roll" data-text="Work"><span>Work</span></span></a></li>
+        <li><a href="/nori"><span class="roll" data-text="Projects"><span>Projects</span></span></a></li>
+        <li><a href="/reel" data-view="reel"><span class="roll" data-text="Reel"><span>Reel</span></span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero" id="hero" aria-label="Introduction">
+    <h1 class="name" id="name" aria-label="Allison (Tsz Kwan) Lau">
+      <span class="line" aria-hidden="true"><span class="inner" data-word="Allison (Tsz Kwan)"></span></span>
+      <span class="line" aria-hidden="true"><span class="inner" data-word="Lau"></span></span>
+    </h1>
+    <div class="sub">
+      <p class="role" id="role">
+        <span class="role-item" data-state="still"><span class="w" style="--i:0"><span>Product</span></span> <span class="w mark" style="--i:1"><span>engineer</span></span></span>
+        <span class="role-item"><span class="w" style="--i:0"><span>Physically-based</span></span> <span class="w mark" style="--i:1"><span>rendering</span></span></span>
+        <span class="role-item"><span class="w" style="--i:0"><span>Physically-based</span></span> <span class="w mark" style="--i:1"><span>simulations</span></span></span>
+      </p>
+      <p class="based"><span>Currently based in Zürich // Working worldwide</span></p>
+    </div>
+  </section>
+
+  <p class="intro" id="intro">I am a graduate student at <a href="https://inf.ethz.ch/" target="_blank" rel="noopener noreferrer"><b>ETH Zürich</b></a>. Currently, I am working on discrete shells simulations with Prof. <a href="https://thomaszewski.com/" target="_blank" rel="noopener noreferrer"><b>Bernhard Thomaszewski</b></a> at the <a href="https://crl.ethz.ch/" target="_blank" rel="noopener noreferrer"><b>Computational Robotics Laboratory (CRL)</b></a>. I also work as a product engineer at <a href="https://www.vocadian.ai/" target="_blank" rel="noopener noreferrer"><b>Vocadian</b></a>, a voice tech venture on improving workforce safety. I completed my undergraduate studies in physics and computer science at the <a href="https://web.cs.toronto.edu/" target="_blank" rel="noopener noreferrer"><b>University of Toronto</b></a>, under the supervision of Prof. <a href="https://www.cs.toronto.edu/~rahulgk/" target="_blank" rel="noopener noreferrer"><b>Rahul Krishnan</b></a>.</p>
+
+  <a class="skull-link" id="skull-link" href="/reel" data-view="reel" tabindex="-1" aria-hidden="true"><span class="skull-label"><i></i>Reel</span></a>
+  <a class="focus-link" href="/reel" data-view="reel">Watch the reel</a>
+
+  <p class="credit" id="credit">Design inspired by <a href="https://arshkhachatrian.com/" target="_blank" rel="noopener noreferrer">Arsh Khachatrian</a></p>
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var hero = document.getElementById('hero');
+  var nameEl = document.getElementById('name');
+  var bg = document.getElementById('bg');
+  var roleItems = Array.prototype.slice.call(document.querySelectorAll('.role-item'));
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- build letters: each has a visible glyph and a burnt-sand echo behind it ---------- */
+  var lineEls = Array.prototype.slice.call(nameEl.querySelectorAll('.line'));
+  var inners = lineEls.map(function (l) { return l.querySelector('.inner'); });
+  inners.forEach(function (inner) {
+    Array.from(inner.dataset.word.toUpperCase()).forEach(function (chr) {
+      var glyph = chr === ' ' ? ' ' : chr;
+      var ch = document.createElement('span'); ch.className = 'ch';
+      var e = document.createElement('span'); e.className = 'e'; e.textContent = glyph;
+      var g = document.createElement('span'); g.className = 'g'; g.textContent = glyph;
+      ch.appendChild(e); ch.appendChild(g); inner.appendChild(ch);
+    });
+  });
+  nameEl.classList.add('js');
+
+  var lines = lineEls.map(function (lineEl) {
+    return Array.prototype.slice.call(lineEl.querySelectorAll('.ch')).map(function (ch) {
+      return { ch: ch, g: ch.querySelector('.g'), e: ch.querySelector('.e'),
+        cx: 0, cy: 0, y: 0, v: 0, acc: 0, target: 0, alpha: 0, release: Infinity,
+        swell: { x: 0, v: 0 }, echoY: { x: 0, v: 0 }, echoTilt: { x: 0, v: 0 } };
+    });
+  });
+  var letters = [].concat.apply([], lines);
+
+  /* ---------- sizing: widest line fills the hero width, capped by viewport height ---------- */
+  var fs = 120, rect = nameEl.getBoundingClientRect(), lastKey = '';
+  // Size reference: the earlier layout set "(TSZ KWAN) LAU" across 78% of the width (98% on phones).
+  // The name is now 15% smaller than that, and never wider than the space available.
+  var sizeRef = document.createElement('span');
+  sizeRef.textContent = '(TSZ KWAN) LAU';
+  sizeRef.setAttribute('aria-hidden', 'true');
+  sizeRef.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none';
+  nameEl.appendChild(sizeRef);
+  function fit() {
+    var avail = hero.clientWidth;
+    nameEl.style.fontSize = '100px';
+    var widest = Math.max.apply(null, inners.map(function (i) { return i.offsetWidth; }));
+    var ref = sizeRef.offsetWidth;
+    if (!widest || !ref) return;
+    var narrow = window.innerWidth < 720;
+    var earlier = Math.min((narrow ? 0.98 : 0.78) * 100 * avail / ref, window.innerHeight * (narrow ? 0.2 : 0.18));
+    fs = Math.min(earlier * 0.85, 0.98 * 100 * avail / widest) * 0.995;
+    nameEl.style.fontSize = fs.toFixed(2) + 'px';
+  }
+  function measure() {
+    rect = nameEl.getBoundingClientRect();
+    lines.forEach(function (line, li) {
+      var top = lineEls[li].offsetTop;
+      line.forEach(function (c) {
+        c.cx = c.ch.offsetLeft + c.ch.offsetWidth / 2;
+        c.cy = top + c.ch.offsetTop + c.ch.offsetHeight / 2;
+      });
+    });
+  }
+  function relayout(force) {
+    var key = hero.clientWidth + 'x' + window.innerHeight;
+    if (!force && key === lastKey) return;
+    lastKey = key; fit(); measure();
+  }
+  relayout(true);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { relayout(true); });
+  window.addEventListener('resize', function () { relayout(false); });
+  if (window.ResizeObserver) new ResizeObserver(function () { relayout(false); }).observe(hero);
+
+  /* ---------- rotating role line ---------- */
+  var roleIndex = 0;
+  function startRoles() {
+    if (reduce) { roleItems[0].dataset.state = 'still'; return; }
+    roleItems[0].dataset.state = 'in';
+    setInterval(function () {
+      var prev = roleItems[roleIndex];
+      roleIndex = (roleIndex + 1) % roleItems.length;
+      var next = roleItems[roleIndex];
+      prev.dataset.state = 'out';
+      next.dataset.state = 'in';
+      setTimeout(function () { if (prev.dataset.state === 'out') delete prev.dataset.state; }, 900);
+    }, 3800);
+  }
+  roleItems[0].removeAttribute('data-state');
+  requestAnimationFrame(function () { stage.classList.add('ready'); });
+  setTimeout(startRoles, reduce ? 0 : 950);
+
+  if (reduce) { nameEl.classList.add('still'); return; }
+
+  /* ---------- physics helpers ---------- */
+  // Critically damped spring, solved exactly for one step of length dt.
+  function spring(s, target, w, dt) {
+    var d = s.x - target, k = s.v + w * d, decay = Math.exp(-w * dt);
+    s.x = target + (d + k * dt) * decay;
+    s.v = (s.v - w * k * dt) * decay;
+  }
+  function clamp(x, lo, hi) { return x < lo ? lo : x > hi ? hi : x; }
+  // A pluck: an upward kick that falls off with distance along the line.
+  function pluck(line, x, strength) {
+    line.forEach(function (c) { var d = (c.cx - x) / fs / 0.9; c.v -= strength * Math.exp(-d * d); });
+  }
+
+  var COUPLE = 600, ANCHOR = 78, DAMP = 10.5, STEP = 1 / 240;
+
+  /* ---------- pointer ---------- */
+  var ptr = { x: -1e5, y: -1e5, active: false, pressed: false };
+  var par = { x: 0, y: 0 }, parTarget = { x: 0, y: 0 };
+  var nextIdle = 0;
+  function resetIdle(now) { nextIdle = (now || performance.now() / 1000) + 6.5 + 3.5 * Math.random(); }
+
+  window.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'mouse' || ptr.pressed) { ptr.x = e.clientX; ptr.y = e.clientY; ptr.active = true; resetIdle(); }
+    parTarget.x = e.clientX / window.innerWidth * 2 - 1;
+    parTarget.y = e.clientY / window.innerHeight * 2 - 1;
+  }, { passive: true });
+  window.addEventListener('pointerdown', function (e) {
+    ptr.x = e.clientX; ptr.y = e.clientY; ptr.active = true;
+    if (e.pointerType !== 'mouse') ptr.pressed = true;
+    resetIdle();
+    if (phase !== 'live') return;
+    var x = e.clientX - rect.left, y = e.clientY - rect.top;
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      if (l.length && x > l[0].cx - 0.5 * fs && x < l[l.length - 1].cx + 0.5 * fs && Math.abs(y - l[0].cy) < 0.55 * fs) { pluck(l, x, 7.5); break; }
+    }
+  }, { passive: true });
+  function endTouch(e) { if (e.pointerType !== 'mouse') { ptr.pressed = false; ptr.active = false; } }
+  window.addEventListener('pointerup', endTouch, { passive: true });
+  window.addEventListener('pointercancel', endTouch, { passive: true });
+  document.documentElement.addEventListener('mouseleave', function () { ptr.active = false; });
+
+  /* ---------- intro: letters rise out of a slot one after another ---------- */
+  var phase = 'in';
+  nameEl.dataset.phase = 'in';
+  var t0 = performance.now() / 1000;
+  letters.forEach(function (c, i) {
+    var n = letters.length;
+    c.y = 0.6 + 0.1 * Math.sin(Math.PI * (n > 1 ? i / (n - 1) : 0.5));
+    c.echoY.x = c.y;
+    c.release = t0 + 0.25 + 0.05 * i;
+  });
+  var liveAt = t0 + 0.25 + 0.05 * (letters.length - 1) + 1.6;
+
+  var hover = { x: 0, v: 0 };
+  var last = t0, time = 0, lastRect = 0;
+
+  function frame() {
+    var now = performance.now() / 1000;
+    var dt = Math.min(now - last, 0.05);
+    last = now; time += dt;
+
+    if (phase === 'in' && now > liveAt) { phase = 'live'; nameEl.dataset.phase = 'live'; resetIdle(now); }
+    if (now - lastRect > 0.25) { lastRect = now; rect = nameEl.getBoundingClientRect(); }
+
+    var px = ptr.x - rect.left, py = ptr.y - rect.top;
+    spring(hover, ptr.active && phase === 'live' ? 1 : 0, 5, dt);
+
+    // Every few idle seconds, pluck a random letter so the name never sits dead still.
+    if (phase === 'live' && now > nextIdle) {
+      if (!ptr.pressed) {
+        var rl = lines[Math.floor(Math.random() * lines.length)];
+        var rc = rl[Math.floor(Math.random() * rl.length)];
+        if (rc) pluck(rl, rc.cx, 3);
+      }
+      resetIdle(now);
+    }
+
+    // Targets: a slow breathing wave, plus a pull toward the cursor for nearby letters.
+    letters.forEach(function (c) {
+      var target = 0.014 * Math.sin(1.25 * time - c.cx / fs * 0.9);
+      var near = 0;
+      if (hover.x > 0.001) {
+        var dx = (px - c.cx) / fs / 0.95, dy = (py - c.cy) / fs;
+        near = Math.exp(-dx * dx - (dy / 0.85) * (dy / 0.85)) * hover.x;
+        target += clamp(0.6 * dy, -0.64, 0.64) * near;
+      }
+      c.target = target;
+      spring(c.swell, 0.15 * near, 12, dt);
+    });
+
+    // String physics: each letter is pulled toward its neighbours and its own target.
+    var steps = Math.max(1, Math.ceil(dt / STEP)), h = dt / steps;
+    for (var s = 0; s < steps; s++) {
+      for (var li = 0; li < lines.length; li++) {
+        var line = lines[li];
+        for (var i = 0; i < line.length; i++) {
+          var c = line[i];
+          if (now < c.release) { c.acc = 0; continue; }
+          var left = i > 0 && now >= line[i - 1].release ? line[i - 1].y : c.y;
+          var right = i < line.length - 1 && now >= line[i + 1].release ? line[i + 1].y : c.y;
+          c.acc = COUPLE * (left + right - 2 * c.y) + ANCHOR * (c.target - c.y) - DAMP * c.v;
+        }
+        for (var j = 0; j < line.length; j++) { line[j].v += line[j].acc * h; line[j].y += line[j].v * h; }
+      }
+    }
+
+    // Draw: tilt with the local slope, squash with speed, echo lags behind and shows only while moving.
+    for (var a = 0; a < lines.length; a++) {
+      var ln = lines[a];
+      for (var b = 0; b < ln.length; b++) {
+        var L = ln[b], prev = ln[Math.max(0, b - 1)], next = ln[Math.min(ln.length - 1, b + 1)];
+        var run = (next.cx - prev.cx) / fs;
+        var tilt = run > 0 ? Math.atan2(next.y - prev.y, run) : 0;
+        spring(L.echoY, L.y, 9, dt);
+        spring(L.echoTilt, tilt, 9, dt);
+        if (now >= L.release) { var k = Math.min(1, (now - L.release) / 1); L.alpha = k * k * (3 - 2 * k); }
+        var squash = phase === 'in' ? 0 : Math.min(0.08, 0.012 * Math.abs(L.v));
+        var sc = 1 + L.swell.x;
+        L.g.style.transform = 'translate3d(0,' + (L.y * fs).toFixed(2) + 'px,0) rotate(' + tilt.toFixed(4) + 'rad) scale(' + (sc * (1 - 0.5 * squash)).toFixed(4) + ',' + (sc * (1 + squash)).toFixed(4) + ')';
+        L.g.style.opacity = L.alpha.toFixed(3);
+        var trail = Math.min(0.85, 5 * Math.abs(L.y - L.echoY.x) + 0.035 * Math.abs(L.v));
+        L.e.style.transform = 'translate3d(0,' + (L.echoY.x * fs).toFixed(2) + 'px,0) rotate(' + L.echoTilt.x.toFixed(4) + 'rad)';
+        L.e.style.opacity = (trail * L.alpha).toFixed(3);
+      }
+    }
+
+    // Gentle parallax: render drifts against the cursor, the name drifts a little less.
+    var ease = 1 - Math.exp(-3 * dt);
+    par.x += (parTarget.x - par.x) * ease;
+    par.y += (parTarget.y - par.y) * ease;
+    bg.style.transform = 'translate3d(' + (-par.x * 14).toFixed(2) + 'px,' + (-par.y * 9).toFixed(2) + 'px,0)';
+    hero.style.transform = 'translate3d(' + (-par.x * 8).toFixed(2) + 'px,' + (-par.y * 5).toFixed(2) + 'px,0)';
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+<script src="/pages.js"></script>
+<script type="module">
+/* ---------- the bare room in real time ----------
+   Geometry and camera come from the Blender scene (model/room.glb). Surface colour and lighting were baked in
+   Cycles into model/{room,sand,skull,bones}.webp, so surfaces are drawn unlit. The bake's colours were then fitted
+   to the Nori render from the same camera (bareroom/fit3.py): a gain per object is already in the textures, and the
+   glowing haze the bake cannot hold comes back as model/haze.png, a light added by view direction (LOOK below). */
+// Full URLs, no import map: the Claude viewer in Firefox ignores import maps. jsDelivr's +esm builds point
+// GLTFLoader at this exact three URL, so both share one copy of three.
+import * as THREE from '/vendor/three/three.module.min.js';
+import { GLTFLoader } from '/vendor/three/GLTFLoader.js';
+import { CSS3DRenderer, CSS3DObject } from '/vendor/three/CSS3DRenderer.js';
+
+const canvas = document.getElementById('scene3d');
+const stage = document.getElementById('stage');
+const poster = document.getElementById('bg');
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// From fit3.py, linear RGB. glass: the window panes. haze.png holds the haze mapped from [hazeMin, hazeMax] to [0, 1].
+// hazeEdge: the haze for directions outside the render's frame. hazeYFov: the render camera's vertical fov (16:9).
+const LOOK = { glass: [1.9070, 1.3559, 0.9116], hazeMin: [0.0185, 0.0025, -0.0391], hazeMax: [0.4965, 0.2053, 0.0327], hazeEdge: [0.1164, 0.0273, -0.0060], hazeYFov: 71.75 };
+
+const diag = window.diag || function () {};
+diag('3D module loaded (three r' + THREE.REVISION + ')');
+start().catch(function (err) {
+  console.warn('3D scene unavailable, keeping the still render:', err);
+  diag('3D failed: ' + (err && err.message || err));
+  const h = location.hash.slice(1);
+  if (h === 'work' || h === 'reel') location.replace('/' + h);
+});
+
+async function start() {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  diag('WebGL ' + (renderer.capabilities.isWebGL2 ? '2' : '1') + ' renderer ready');
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.NoToneMapping; // like the Nori render: plain sRGB, clipped at white
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xFCF7ED); // seen through the open lower sashes: the glare outside, as in the render
+  const camera = new THREE.PerspectiveCamera(68, 16 / 9, 0.03, 60);
+
+  const texLoader = new THREE.TextureLoader();
+  const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  function baked(url) {
+    return new Promise(function (resolve, reject) {
+      texLoader.load(url, function (t) {
+        t.flipY = false; // glTF UV convention
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = aniso;
+        diag('texture ok: ' + url);
+        resolve(t);
+      }, undefined, function (e) { diag('texture failed: ' + url); reject(e); });
+    });
+  }
+  async function loadRoom() {
+    diag('fetching model…');
+    const parsed = await new GLTFLoader().loadAsync('/model/room.glb');
+    diag('model parsed');
+    return parsed;
+  }
+  function hazeTexture(url) {
+    return new Promise(function (resolve) {
+      if (!LOOK.hazeMax) { resolve(null); return; }
+      texLoader.load(url, function (t) {
+        t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter;
+        resolve(t);
+      }, undefined, function () { diag('haze texture failed, drawing without it'); resolve(null); });
+    });
+  }
+  // Desktops get the 4096 textures; touch devices the 2048 ones, a quarter of the memory.
+  const big = renderer.capabilities.maxTextureSize >= 4096 && !window.matchMedia('(pointer: coarse)').matches;
+  const size = big ? '' : '_2k';
+  diag('textures: ' + (big ? '4096' : '2048'));
+  const loaded = await Promise.all([
+    loadRoom(),
+    baked('/model/room' + size + '.webp'), baked('/model/sand' + size + '.webp'),
+    baked('/model/skull' + size + '.webp'), baked('/model/bones.webp'),
+    hazeTexture('/model/haze.png')
+  ]);
+  const gltf = loaded[0];
+  const maps = { room: loaded[1], sand: loaded[2], skull: loaded[3], bones: loaded[4] };
+
+  // Start exactly where the "Window" camera in the .blend sits.
+  const basePos = new THREE.Vector3(0.88, -0.25, -0.62);
+  const baseQuat = new THREE.Quaternion();
+  if (gltf.cameras[0]) { gltf.cameras[0].getWorldPosition(basePos); gltf.cameras[0].getWorldQuaternion(baseQuat); }
+  const right = new THREE.Vector3(1, 0, 0).applyQuaternion(baseQuat);
+  const up = new THREE.Vector3(0, 1, 0).applyQuaternion(baseQuat);
+  const worldUp = new THREE.Vector3(0, 1, 0);
+
+  // ---------- the haze: light the room's air adds on its way to the camera, looked up by view direction ----------
+  // haze.png is that light as the render camera saw it. For nearby viewpoints the direction is what matters, so
+  // the glow stays put as the camera sways; directions outside the render's frame get its average edge value.
+  const hazeTan = Math.tan(THREE.MathUtils.degToRad(LOOK.hazeYFov) / 2);
+  const hazeUniforms = loaded[5] && {
+    hazeMap: { value: loaded[5] },
+    hazeMin: { value: new THREE.Vector3().fromArray(LOOK.hazeMin) },
+    hazeMax: { value: new THREE.Vector3().fromArray(LOOK.hazeMax) },
+    hazeEdge: { value: new THREE.Vector3().fromArray(LOOK.hazeEdge) },
+    hazeRot: { value: new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(baseQuat.clone().invert())) },
+    hazeTan: { value: new THREE.Vector2(hazeTan * 16 / 9, hazeTan) }
+  };
+  const HAZE_GLSL = [
+    'uniform sampler2D hazeMap; uniform vec3 hazeMin; uniform vec3 hazeMax; uniform vec3 hazeEdge; uniform mat3 hazeRot; uniform vec2 hazeTan;',
+    'varying vec3 vHazePos;',
+    'vec3 hazeAt(vec3 dir) {',
+    '  vec3 d = hazeRot * dir;',
+    '  if (d.z > -0.05) return hazeEdge;',
+    '  vec2 uv = 0.5 + 0.5 * d.xy / (-d.z * hazeTan);',
+    '  vec2 o = max(max(-uv, uv - 1.0), 0.0);',
+    '  float inside = 1.0 - smoothstep(0.0, 0.3, max(o.x, o.y));',
+    '  return mix(hazeEdge, hazeMin + texture2D(hazeMap, clamp(uv, 0.0, 1.0)).rgb * (hazeMax - hazeMin), inside);',
+    '}', ''
+  ].join('\n');
+  function withHaze(mat) {
+    if (!hazeUniforms) return mat;
+    mat.onBeforeCompile = function (sh) {
+      Object.assign(sh.uniforms, hazeUniforms);
+      sh.vertexShader = 'varying vec3 vHazePos;\n' + sh.vertexShader.replace('#include <project_vertex>',
+        '#include <project_vertex>\n\tvHazePos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = HAZE_GLSL + sh.fragmentShader.replace('#include <opaque_fragment>',
+        '\toutgoingLight += hazeAt(normalize(vHazePos - cameraPosition));\n#include <opaque_fragment>');
+    };
+    return mat;
+  }
+
+  let skull = null;
+  gltf.scene.traverse(function (o) {
+    if (!o.isMesh) return;
+    const key = Object.keys(maps).find(function (k) { return o.name.indexOf(k) === 0; });
+    if (key) o.material = withHaze(new THREE.MeshBasicMaterial({ map: maps[key] }));
+    else if (o.name.indexOf('glass') === 0) o.material = withHaze(new THREE.MeshBasicMaterial({ color: new THREE.Color().fromArray(LOOK.glass) }));
+    if (key === 'skull') skull = o;
+  });
+  scene.add(gltf.scene);
+  gltf.scene.updateMatrixWorld(true);
+
+  // ---------- pages on the walls ----------
+  // The Work page hangs on the left wall (z = 2.38, facing -z) and the Reel on the right wall (z = -1.37, facing +z),
+  // both centred on the room (x = -0.29) above the sand and the skeleton (nothing in the room rises above y = -0.35).
+  // They are real HTML, so links, buttons, scrolling and text selection work. Each page is sized in CSS pixels to fit the
+  // window, and the camera stops exactly where one CSS pixel on the wall is one pixel on screen, so the text stays sharp.
+  // The CSS scene is scaled up K times so the browser's 3D transforms never deal with tiny numbers.
+  const K = 100, WALL_FOV = 50, WALL_H = 1.32, WALL_W = 3.2;
+  const wallsEl = document.getElementById('walls');
+  const cssRenderer = new CSS3DRenderer({ element: wallsEl });
+  const cssScene = new THREE.Scene(), cssCamera = new THREE.PerspectiveCamera();
+  const WALLS = {
+    work: { el: document.getElementById('wall-work'), center: new THREE.Vector3(-0.29, 0.45, 2.376), normal: new THREE.Vector3(0, 0, -1) },
+    reel: { el: document.getElementById('wall-reel'), center: new THREE.Vector3(-0.29, 0.45, -1.366), normal: new THREE.Vector3(0, 0, 1) }
+  };
+  const lookM = new THREE.Matrix4();
+  Object.keys(WALLS).forEach(function (k) {
+    const w = WALLS[k];
+    w.obj = new CSS3DObject(w.el);
+    w.el.style.userSelect = '';
+    w.obj.position.copy(w.center).multiplyScalar(K);
+    w.obj.rotation.y = w.normal.z < 0 ? Math.PI : 0; // the page's front faces into the room
+    cssScene.add(w.obj);
+    w.pose = { pos: new THREE.Vector3(), quat: new THREE.Quaternion(), fov: WALL_FOV };
+  });
+  const header = document.querySelector('.header');
+  function layoutWalls() {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    cssRenderer.setSize(w, h);
+    const mY = Math.max(header.getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 14, 64);
+    const mX = Math.max(16, w * 0.05);
+    const pw = Math.round(Math.min(1180, w - 2 * mX)), ph = Math.round(Math.max(320, h - 2 * mY));
+    const s = Math.min(WALL_H / ph, WALL_W / pw); // world units per CSS pixel
+    const d = s * 0.5 * h / Math.tan(THREE.MathUtils.degToRad(WALL_FOV) / 2); // distance at which the page is 1:1
+    Object.keys(WALLS).forEach(function (k) {
+      const wl = WALLS[k];
+      wl.el.style.width = pw + 'px'; wl.el.style.height = ph + 'px';
+      wl.el.style.setProperty('--ph', ph + 'px');
+      wl.obj.scale.setScalar(s * K);
+      wl.pose.pos.copy(wl.center).addScaledVector(wl.normal, d);
+      lookM.lookAt(wl.pose.pos, wl.center, worldUp);
+      wl.pose.quat.setFromRotationMatrix(lookM);
+    });
+  }
+  function setWall(k, on) {
+    const el = WALLS[k].el, pg = el.querySelector('.pg');
+    el.classList.toggle('on', on);
+    if (on) { el.removeAttribute('inert'); pg.classList.remove('play'); void pg.offsetWidth; pg.classList.add('play'); }
+    else el.setAttribute('inert', '');
+  }
+
+  // ---------- the reel: the real YouTube player, laid flat over the wall's screen once the camera has arrived ----------
+  // Not every browser paints an iframe inside a 3D-transformed page, so the player lives in 2D on top of the wall.
+  // The camera stops where the wall is 1:1 on screen, so it covers the wall's screen exactly. Nothing is loaded from
+  // YouTube until the Reel is first opened; on the way out the player hides and pauses.
+  const videoBox = document.getElementById('reel-video');
+  const videoSlot = WALLS.reel.el.querySelector('.pg-video-slot');
+  const videoScreen = videoSlot && videoSlot.closest('.pg-screen');
+  const reelScroll = WALLS.reel.el.querySelector('.wall-scroll');
+  let video = null, videoShown = false;
+  function placeVideo() {
+    const r = videoScreen.getBoundingClientRect(), s = stage.getBoundingClientRect(), c = reelScroll.getBoundingClientRect();
+    videoBox.style.left = (r.left - s.left) + 'px'; videoBox.style.top = (r.top - s.top) + 'px';
+    videoBox.style.width = r.width + 'px'; videoBox.style.height = r.height + 'px';
+    const t = Math.max(0, c.top - r.top), b = Math.max(0, r.bottom - c.bottom); // scrolled partly out of the wall
+    videoBox.style.clipPath = t || b ? 'inset(' + t + 'px 0 ' + b + 'px 0)' : '';
+  }
+  function showVideo(on) {
+    if (!videoBox || !videoScreen || on === videoShown) return;
+    videoShown = on;
+    if (on && !video) {
+      video = document.createElement('iframe');
+      video.src = videoSlot.dataset.src;
+      video.title = 'Rendering reel: renders from Nori (YouTube)';
+      video.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      video.referrerPolicy = 'strict-origin-when-cross-origin';
+      video.allowFullscreen = true;
+      videoBox.appendChild(video);
+    }
+    if (on) placeVideo();
+    videoBox.classList.toggle('on', on);
+    videoBox.inert = !on;
+    if (!on && video && video.contentWindow) video.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
+  }
+
+  // ---------- views: the landing, the left wall (Work) and the right wall (Reel) ----------
+  let homeFov = 68;
+  let view = 'home', tween = null, homeBlend = 1;
+  function poseOf(v) { return v === 'home' ? { pos: basePos, quat: baseQuat, fov: homeFov } : WALLS[v].pose; }
+  const navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a[data-view]'));
+  const homeOnly = ['hero', 'intro', 'credit'].map(function (id) { return document.getElementById(id); });
+  function go(to, instant) {
+    if (to !== 'work' && to !== 'reel') to = 'home';
+    if (tween ? tween.to === to : view === to) return;
+    diag('view → ' + to);
+    showVideo(false);
+    Object.keys(WALLS).forEach(function (k) { if (k !== to) setWall(k, false); });
+    stage.classList.toggle('away', to !== 'home');
+    homeOnly.forEach(function (el) { if (el) el.inert = to !== 'home'; });
+    navLinks.forEach(function (a) { if (a.dataset.view === to) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    if (hovered) { hovered = false; document.body.style.cursor = ''; link.classList.remove('on'); }
+    if (instant || reduce) {
+      tween = null; view = to; homeBlend = to === 'home' && !instant ? 0 : 1;
+      if (to !== 'home') setWall(to, true);
+      if (to === 'reel') showVideo(true);
+      return;
+    }
+    // turn further, travel longer
+    const target = poseOf(to);
+    const turn = camera.quaternion.angleTo(target.quat), dist = camera.position.distanceTo(target.pos);
+    tween = { to: to, t: 0, dur: Math.min(2.4, 1.1 + turn * 0.35 + dist * 0.18), shown: false,
+              pos: camera.position.clone(), quat: camera.quaternion.clone(), fov: camera.fov };
+  }
+  function viewFromHash() { const h = location.hash.slice(1); return h === 'work' || h === 'reel' ? h : 'home'; }
+  function navigate(to) {
+    if (viewFromHash() !== to) {
+      const url = to === 'home' ? location.pathname + location.search : '#' + to;
+      try { history.pushState({ view: to }, '', url); } catch (err) { location.hash = to === 'home' ? '' : to; }
+    }
+    go(to);
+  }
+  window.addEventListener('popstate', function () { go(viewFromHash()); });
+  window.addEventListener('hashchange', function () { go(viewFromHash()); });
+  // nav, the favicon, "Back to the room" and the keyboard reel link fly the camera instead of loading a page
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest && e.target.closest('a[data-view]');
+    if (!a || a.classList.contains('skull-link')) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    navigate(a.dataset.view);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && view !== 'home') navigate('home'); });
+  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+  // ---------- camera: follows the pointer a little, so near things slide past far ones ----------
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  // The skull also needs the pointer position, and whether it is over a real control (those win).
+  const pointer = { x: -1e4, y: -1e4, mouse: false, overUI: false };
+  // the skull's own cursor link is not "UI" here: it exists to sit under the pointer while the skull is hovered
+  function onUI(el) { return !!(el && el.closest && !el.closest('.skull-link') && el.closest('a, button, [role="button"], .inner, .wall')); }
+  window.addEventListener('pointermove', function (e) {
+    // hold the camera still while the skull is hovered, so it doesn't slide out from under the cursor
+    if (!hovered) {
+      tx = e.clientX / window.innerWidth * 2 - 1;
+      ty = e.clientY / window.innerHeight * 2 - 1;
+    }
+    pointer.x = e.clientX; pointer.y = e.clientY;
+    pointer.mouse = e.pointerType === 'mouse';
+    pointer.overUI = onUI(e.target);
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', function () { pointer.mouse = false; });
+
+  // ---------- the skull: rocks on hover, kicks up sand, and leads to the reel on click ----------
+  // Small rocking keeps the baked lighting believable; nothing here needs a re-bake.
+  const link = document.getElementById('skull-link');
+  const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  const rock = { x: 0, vx: 0, z: 0, vz: 0 };
+  let pivot = null, skullBox = null, hovered = false;
+  if (skull) {
+    skullBox = new THREE.Box3().setFromObject(skull);
+    pivot = new THREE.Group();
+    pivot.position.set((skullBox.min.x + skullBox.max.x) / 2, skullBox.min.y, (skullBox.min.z + skullBox.max.z) / 2);
+    scene.add(pivot);
+    pivot.attach(skull); // stays where it was, but now rocks about its base in the sand
+  }
+  function overSkull(clientX, clientY) {
+    if (!skull) return false;
+    const r = canvas.getBoundingClientRect();
+    ndc.set((clientX - r.left) / r.width * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    // test both sides: the skull's faces are wound inconsistently, so a front-only test misses the horns
+    const side = skull.material.side;
+    skull.material.side = THREE.DoubleSide;
+    const hit = raycaster.intersectObject(skull, false).length > 0;
+    skull.material.side = side;
+    return hit;
+  }
+  function nudge(strength) {
+    if (reduce) return;
+    rock.vz += strength * (Math.random() < 0.5 ? -1 : 1);
+    rock.vx += strength * 0.5 * (Math.random() < 0.5 ? -1 : 1);
+  }
+
+  // Sand grains: a small burst around the skull's base that falls back down and fades.
+  const PUFF = 56, SAND = [0.62, 0.42, 0.22];
+  const puffPos = new Float32Array(PUFF * 3), puffVel = new Float32Array(PUFF * 3), puffCol = new Float32Array(PUFF * 3), puffLife = new Float32Array(PUFF);
+  const puffGeo = new THREE.BufferGeometry();
+  puffGeo.setAttribute('position', new THREE.BufferAttribute(puffPos, 3));
+  puffGeo.setAttribute('color', new THREE.BufferAttribute(puffCol, 3));
+  const grain = document.createElement('canvas'); grain.width = grain.height = 32;
+  const gctx = grain.getContext('2d'), ggrad = gctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+  ggrad.addColorStop(0, 'rgba(255,255,255,1)'); ggrad.addColorStop(1, 'rgba(255,255,255,0)');
+  gctx.fillStyle = ggrad; gctx.fillRect(0, 0, 32, 32);
+  const puffs = new THREE.Points(puffGeo, new THREE.PointsMaterial({
+    size: 0.02, map: new THREE.CanvasTexture(grain), vertexColors: true, transparent: true,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+  }));
+  puffs.frustumCulled = false;
+  scene.add(puffs);
+  function puff(count) {
+    if (!pivot || reduce) return;
+    let made = 0;
+    for (let i = 0; i < PUFF && made < count; i++) {
+      if (puffLife[i] > 0) continue;
+      const ang = Math.random() * Math.PI * 2, rad = 0.05 + Math.random() * 0.16, sp = 0.15 + Math.random() * 0.35;
+      puffPos[i * 3] = pivot.position.x + Math.cos(ang) * rad;
+      puffPos[i * 3 + 1] = pivot.position.y + 0.02;
+      puffPos[i * 3 + 2] = pivot.position.z + Math.sin(ang) * rad;
+      puffVel[i * 3] = Math.cos(ang) * sp;
+      puffVel[i * 3 + 1] = 0.35 + Math.random() * 0.6;
+      puffVel[i * 3 + 2] = Math.sin(ang) * sp;
+      puffLife[i] = 1;
+      made++;
+    }
+  }
+  window.addEventListener('click', function (e) {
+    if (!skull || view !== 'home' || tween) return;
+    // With a mouse the click lands on the real link that follows the cursor; a tap has no hover, so test the skull.
+    const onLink = e.target.closest && e.target.closest('.skull-link');
+    if (!onLink && (onUI(e.target) || !overSkull(e.clientX, e.clientY))) return;
+    e.preventDefault();
+    nudge(5); puff(PUFF);
+    // let the skull rock and the sand fly for a moment, then go to the reel
+    setTimeout(function () { navigate('reel'); }, reduce ? 0 : 420);
+  });
+
+  function resize() {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    // keep the render's very wide horizontal view (14 mm lens), but never wider than 80 degrees vertically
+    const hfov = THREE.MathUtils.degToRad(100);
+    const vfov = Math.min(2 * Math.atan(Math.tan(hfov / 2) / camera.aspect), THREE.MathUtils.degToRad(80));
+    homeFov = THREE.MathUtils.radToDeg(vfov);
+    if (view === 'home' && !tween) camera.fov = homeFov;
+    camera.updateProjectionMatrix();
+    layoutWalls();
+  }
+  resize();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutWalls);
+  go(viewFromHash(), true); // arriving on #work or #reel starts at that wall
+  window.addEventListener('resize', resize);
+
+  const qYaw = new THREE.Quaternion(), qPitch = new THREE.Quaternion();
+  let last = performance.now() / 1000, time = 0, shown = false;
+  function frame() {
+    const now = performance.now() / 1000, dt = Math.min(now - last, 0.05);
+    last = now; time += dt;
+    const ease = 1 - Math.exp(-2.4 * dt);
+    cx += (tx - cx) * ease; cy += (ty - cy) * ease;
+    if (tween) {
+      tween.t = Math.min(1, tween.t + dt / tween.dur);
+      const e = easeInOut(tween.t), goal = poseOf(tween.to);
+      camera.position.lerpVectors(tween.pos, goal.pos, e);
+      camera.position.y += Math.sin(Math.PI * e) * 0.12; // a slight lift on the way, clear of the skeleton
+      camera.quaternion.slerpQuaternions(tween.quat, goal.quat, e);
+      camera.fov = tween.fov + (goal.fov - tween.fov) * e;
+      camera.updateProjectionMatrix();
+      if (!tween.shown && tween.to !== 'home' && tween.t > 0.55) { tween.shown = true; setWall(tween.to, true); }
+      if (tween.t >= 1) { view = tween.to; if (view === 'home') homeBlend = 0; tween = null; if (view === 'reel') showVideo(true); }
+    } else if (view === 'home') {
+      // ease the pointer parallax back in after returning, so the camera doesn't jump
+      homeBlend = Math.min(1, homeBlend + dt * 0.7);
+      const hb = homeBlend * homeBlend * (3 - 2 * homeBlend);
+      const sway = reduce ? 0 : Math.sin(time * 0.23) * 0.12;
+      const lx = (cx + sway) * hb, ly = cy * hb;
+      camera.position.copy(basePos).addScaledVector(right, lx * 0.1).addScaledVector(up, -ly * 0.05);
+      qYaw.setFromAxisAngle(worldUp, -lx * 0.09);
+      qPitch.setFromAxisAngle(right, -ly * 0.05);
+      camera.quaternion.copy(baseQuat).premultiply(qPitch).premultiply(qYaw);
+      if (camera.fov !== homeFov) { camera.fov = homeFov; camera.updateProjectionMatrix(); }
+    } else {
+      const pose = poseOf(view);
+      camera.position.copy(pose.pos);
+      camera.quaternion.copy(pose.quat);
+      if (camera.fov !== pose.fov) { camera.fov = pose.fov; camera.updateProjectionMatrix(); }
+    }
+
+
+    // skull: hover test, rocking spring, label placement
+    if (skull) {
+      const nowHover = view === 'home' && !tween && pointer.mouse && !pointer.overUI && overSkull(pointer.x, pointer.y);
+      if (nowHover !== hovered) {
+        hovered = nowHover;
+        document.body.style.cursor = hovered ? 'pointer' : '';
+        link.classList.toggle('on', hovered);
+        if (hovered) { nudge(2.2); puff(14); }
+      }
+      const restZ = hovered && !reduce ? 0.03 * Math.sin(time * 2.6) : 0;
+      const restX = hovered && !reduce ? 0.018 * Math.sin(time * 2.1 + 1) : 0;
+      rock.vz += (-55 * (rock.z - restZ) - 3.2 * rock.vz) * dt; rock.z += rock.vz * dt;
+      rock.vx += (-55 * (rock.x - restX) - 3.2 * rock.vx) * dt; rock.x += rock.vx * dt;
+      pivot.rotation.set(rock.x, 0, rock.z);
+      if (hovered) {
+        // keep the link under the cursor: its padding surrounds the pointer and its text sits just to the right
+        const r = stage.getBoundingClientRect();
+        const lxp = Math.min(pointer.x - r.left - 22, r.width - link.offsetWidth - 8);
+        link.style.transform = 'translate(' + lxp.toFixed(0) + 'px,' + (pointer.y - r.top - 22).toFixed(0) + 'px)';
+      }
+    }
+    // sand grains: gravity, drag, fade (additive, so a faded grain is simply black and invisible)
+    for (let i = 0; i < PUFF; i++) {
+      if (puffLife[i] <= 0) { puffCol[i * 3] = puffCol[i * 3 + 1] = puffCol[i * 3 + 2] = 0; continue; }
+      const drag = 1 - 1.6 * dt;
+      puffVel[i * 3 + 1] -= 1.5 * dt;
+      puffVel[i * 3] *= drag; puffVel[i * 3 + 1] *= drag; puffVel[i * 3 + 2] *= drag;
+      puffPos[i * 3] += puffVel[i * 3] * dt; puffPos[i * 3 + 1] += puffVel[i * 3 + 1] * dt; puffPos[i * 3 + 2] += puffVel[i * 3 + 2] * dt;
+      puffLife[i] -= dt / 1.2;
+      const f = Math.pow(Math.max(puffLife[i], 0), 1.5);
+      puffCol[i * 3] = SAND[0] * f; puffCol[i * 3 + 1] = SAND[1] * f; puffCol[i * 3 + 2] = SAND[2] * f;
+    }
+    puffGeo.attributes.position.needsUpdate = true;
+    puffGeo.attributes.color.needsUpdate = true;
+
+    renderer.render(scene, camera);
+    if (tween || view !== 'home' || !shown) {
+      cssCamera.position.copy(camera.position).multiplyScalar(K);
+      cssCamera.quaternion.copy(camera.quaternion);
+      cssCamera.projectionMatrix.copy(camera.projectionMatrix);
+      cssCamera.updateMatrixWorld();
+      cssRenderer.render(cssScene, cssCamera);
+      if (videoShown) placeVideo();
+    }
+    if (!shown) {
+      shown = true;
+      diag('first 3D frame drawn: the scene is live' + (skull ? ', skull found' : ', NO skull found'));
+      canvas.classList.add('on');
+      poster.style.transition = 'opacity 1.4s ease';
+      poster.style.opacity = '0';
+    }
+  }
+  renderer.setAnimationLoop(frame);
+  document.addEventListener('visibilitychange', function () { renderer.setAnimationLoop(document.hidden ? null : frame); });
+}
+
+</script>
+</body>
+</html>
