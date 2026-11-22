@@ -83,6 +83,7 @@
 /* ---------- reel: a 16:9 player sized to the height it has; on wide screens the title and caption sit beside it ---------- */
 .pg-reel { --player-w: calc(var(--avail-h, 60vh) * 1.7778 + 28px); display: grid; gap: clamp(16px, 3vh, 30px); width: min(100%, var(--player-w)); margin: 0 auto; padding-top: var(--reel-top, clamp(28px, 6vh, 72px)); }
 .pg-reel .pg-hero { padding: 0; grid-template-columns: auto; }
+.pg-reel .pg-title { font-weight: 200; } /* a little heavier than Thin, like the name on the landing */
 @media (min-width: 961px) {
   .pg-reel { --title-size: clamp(60px, min(8.5vw, 15vh), 140px); width: 100%; grid-template-columns: minmax(210px, 1fr) minmax(0, var(--player-w)); grid-template-rows: auto 1fr; column-gap: clamp(28px, 4vw, 64px); row-gap: 24px; }
   .pg-reel .pg-hero { grid-column: 1; grid-row: 1; padding-top: 14px; }
@@ -115,6 +116,7 @@
   .pg-detail { margin-left: 50px; }
 }
 @media (max-width: 720px) {
+  .pg-reel .pg-title { font-weight: 300; }
   .pg-row:hover .pg-t { transform: none; }
   .pg-player { padding: 10px; }
   .pg-info { grid-template-columns: minmax(0, 1fr); padding: 0 10px; }
