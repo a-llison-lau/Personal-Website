@@ -817,12 +817,15 @@ async function start() {
 
   // ---------- scrolling the walls ----------
   // Chrome and Safari scroll trackpads, mouse wheels and touch on a fast path that doesn't find a scroll area inside
-  // the 3D-transformed walls (only the keyboard reached it), so the walls scroll themselves: wheel deltas directly,
-  // touch drags with a little momentum. Every gesture over a wall is handled here, so it never scrolls twice.
-  function scrollerOf(t) { return t && t.closest ? t.closest('.wall.on .wall-scroll') : null; }
+  // the 3D-transformed walls (only the keyboard reached it). Safari doesn't even route the gesture to a listener on
+  // the wall. So while a wall is in view, any scroll gesture anywhere on the page scrolls that wall's page: wheel
+  // deltas directly, touch drags with a little momentum. Nothing here depends on finding the 3D wall under the pointer.
+  function activeScroller() {
+    return !tween && (view === 'work' || view === 'reel') ? WALLS[view].el.querySelector('.wall-scroll') : null;
+  }
   let coast = 0;
-  wallsEl.addEventListener('wheel', function (e) {
-    const sc = scrollerOf(e.target);
+  window.addEventListener('wheel', function (e) {
+    const sc = activeScroller();
     if (!sc || e.ctrlKey) return; // ctrl + wheel is pinch-zoom: leave it to the browser
     cancelAnimationFrame(coast);
     const unit = e.deltaMode === 1 ? 18 : e.deltaMode === 2 ? sc.clientHeight : 1;
@@ -830,12 +833,12 @@ async function start() {
     e.preventDefault();
   }, { passive: false });
   let drag = null;
-  wallsEl.addEventListener('touchstart', function (e) {
+  window.addEventListener('touchstart', function (e) {
     cancelAnimationFrame(coast);
-    const sc = scrollerOf(e.target);
+    const sc = activeScroller();
     drag = sc && e.touches.length === 1 ? { sc: sc, y: e.touches[0].clientY, t: performance.now(), v: 0, moved: false } : null;
   }, { passive: true });
-  wallsEl.addEventListener('touchmove', function (e) {
+  window.addEventListener('touchmove', function (e) {
     if (!drag || e.touches.length !== 1) return;
     if (e.cancelable) e.preventDefault();
     const y = e.touches[0].clientY, now = performance.now(), dy = drag.y - y;
@@ -845,7 +848,7 @@ async function start() {
     drag.v = 0.8 * dy / Math.max(1, now - drag.t) + 0.2 * drag.v; // px per ms
     drag.y = y; drag.t = now;
   }, { passive: false });
-  wallsEl.addEventListener('touchend', function () {
+  window.addEventListener('touchend', function () {
     if (!drag || !drag.moved || reduce) { drag = null; return; }
     const sc = drag.sc;
     let v = drag.v, last = performance.now();
