@@ -93,7 +93,7 @@ a { color: inherit; }
 
 /* ---------- hero ---------- */
 .hero { position: absolute; top: calc(var(--pad-top) + var(--header-h) + 5vh); left: var(--pad); right: var(--pad); will-change: transform; }
-.name { position: relative; margin: 0; text-align: right; font: 100 120px/.86 var(--f-jost); letter-spacing: -.025em; text-transform: uppercase; font-feature-settings: "lnum"; color: var(--ink); -webkit-user-select: none; user-select: none; }
+.name { position: relative; margin: 0; text-align: right; font: 200 120px/.86 var(--f-jost); letter-spacing: -.025em; text-transform: uppercase; font-feature-settings: "lnum"; color: var(--ink); -webkit-user-select: none; user-select: none; }
 .line { position: relative; display: block; }
 .inner { white-space: nowrap; display: inline-block; touch-action: none; cursor: default; }
 .name[data-phase="in"] .line { clip-path: inset(-.6em -.4em -.05em -.4em); }
@@ -136,12 +136,12 @@ a { color: inherit; }
 .walls { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .wall { background: #F4EBDD; box-shadow: 0 1px 0 rgba(26, 18, 11, .06), 0 50px 90px -30px rgba(50, 24, 6, .5); opacity: 0; visibility: hidden; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
 .wall.on { opacity: 1; visibility: visible; transition: opacity .9s var(--ease), visibility 0s; }
-/* the Reel hangs straight on the plaster, no card: text, frame marks and underlines in ink, which holds about 5:1
-   against the lit plaster (the softer browns and the rust drop to 2.5-3.5:1 there) */
+/* the Reel hangs straight on the plaster, no card: its text, frame marks and underlines are white */
 .wall-reel { background: transparent; box-shadow: none; }
-.wall-reel .pg { --body: var(--ink); --soft: var(--ink); }
-.wall-reel .pg-mark { border-color: var(--ink); }
-.wall-reel .pg-inline, .wall-reel .pg-back { border-bottom-color: var(--ink); }
+.wall-reel .pg { --ink: #FFFFFF; --body: #FFFFFF; --soft: #FFFFFF; }
+.wall-reel .pg-mark { border-color: #FFFFFF; }
+.wall-reel .pg-inline, .wall-reel .pg-back { border-bottom-color: rgba(255, 255, 255, .6); }
+.wall-reel .pg-inline:hover, .wall-reel .pg-back:hover { color: #FFFFFF; border-bottom-color: #FFFFFF; }
 /* the YouTube player, laid flat over the Reel wall's screen once the camera has arrived (see the script) */
 .reel-video { position: absolute; z-index: 1; left: 0; top: 0; width: 0; height: 0; background: #1A120B; opacity: 0; visibility: hidden; transition: opacity .35s var(--ease), visibility 0s linear .35s; }
 .reel-video.on { opacity: 1; visibility: visible; transition: opacity .6s var(--ease) .1s, visibility 0s; }
@@ -157,6 +157,7 @@ a { color: inherit; }
 .stage.away .hero, .stage.away .intro, .stage.away .credit, .stage.away .shade { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .4s var(--ease), visibility 0s linear .4s; }
 
 @media (max-width: 720px) {
+  .name { font-weight: 300; } /* smaller on phones, so heavier strokes */
   :root { --header-h: 48px; }
   .intro { left: var(--pad); right: var(--pad); bottom: calc(var(--pad-top) + 46px); width: auto; font-size: 14.5px; line-height: 1.45; }
   .wall .pg { --title-size: 64px; }
